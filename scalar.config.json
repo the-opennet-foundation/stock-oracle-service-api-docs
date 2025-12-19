@@ -51,6 +51,10 @@
     {
       "name": "Sidiora API Reference",
       "path": "./docs/sidiora-api/sidiora-client-api.yaml"
+    },
+    {
+      "name": "Stock Engine API Reference",
+      "path": "./docs/stocks-engine-api/stock-oracle-service-api.yaml"
     }
   ]
 }
