@@ -1,0 +1,52 @@
+{
+  "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
+  "siteConfig": {
+    "theme": "purple",
+    "logo": {
+      "darkMode": "https://scalar.com/logo-light.svg",
+      "lightMode": "https://scalar.com/logo-dark.svg"
+    }
+  },
+  "guides": [
+    {
+      "name": "Quick Start",
+      "sidebar": [
+        {
+          "name": "Getting Started with Scalar",
+          "type": "folder",
+          "icon": "rocket",
+          "children": [
+            { "path": "docs/guides/quick-start/introduction.md", "type": "page", "name": "Overview" },
+            { "path": "docs/guides/quick-start/details/quickstart.md", "type": "page", "name": "Quickstart" },
+            { "path": "docs/guides/quick-start/details/development.md", "type": "page", "name": "Development" }
+          ]
+        },
+        {
+          "name": "Customizing Your Setup",
+          "type": "folder",
+          "icon": "gear",
+          "children": [
+            { "path": "docs/guides/quick-start/details/project-settings.md", "type": "page", "name": "Project Settings" },
+            { "path": "docs/guides/quick-start/details/api-client.md", "type": "page", "name": "API Client" }
+          ]
+        },
+        {
+          "name": "Appendix",
+          "type": "folder",
+          "icon": "notebook",
+          "defaultOpen": false,
+          "children": [
+            { "path": "docs/guides/quick-start/details/scalar-cli.md", "type": "page", "name": "Scalar CLI" },
+            { "path": "docs/guides/quick-start/details/syntax.md", "type": "page", "name": "Syntax" }
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "name": "API Reference",
+      "path": "./docs/api-reference/openapi.yaml"
+    }
+  ]
+}
