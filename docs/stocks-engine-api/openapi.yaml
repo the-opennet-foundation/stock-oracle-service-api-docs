@@ -1,1276 +1,5405 @@
-openapi: 3.1.1
+openapi: 3.1.0
 info:
-  title: Scalar Galaxy
-  description: |
-    The Scalar Galaxy is an example OpenAPI document to test OpenAPI tools and libraries. It's a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/get/planets).
-
-    ## Resources
-
-    * https://github.com/scalar/scalar
-    * https://github.com/OAI/OpenAPI-Specification
-    * https://scalar.com
-
-    ## Markdown Support
-
-    All descriptions *can* contain ~~tons of text~~ **Markdown**. [If GitHub supports the syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax), chances are we're supporting it, too. You can even create [internal links to reference endpoints](#tag/authentication/post/user/signup).
-
-    <details>
-      <summary>Examples</summary>
-
-      **Blockquotes**
-
-      > I love OpenAPI. <3
-
-      **Tables**
-
-      | Feature          | Availability |
-      | ---------------- | ------------ |
-      | Markdown Support | ✓            |
-
-      **Accordion**
-
-      ```html
-      <details>
-        <summary>Using Details Tags</summary>
-        <p>HTML Example</p>
-      </details>
-      ```
-
-      **Images**
-
-      Yes, there's support for images, too!
-
-      ![Empty placeholder image showing the width/height](https://images.placeholders.dev/?width=1280&height=720)
-
-      **Alerts**
-
-      > [!tip]
-      > You can now use markdown alerts in your descriptions.
-
-    </details>
-  version: 0.5.7
-  contact:
-    name: Scalar Support
-    url: https://scalar.com
-    email: marc@scalar.com
-  license:
-    name: MIT
-    url: https://opensource.org/license/MIT
-externalDocs:
-  description: Documentation
-  url: https://github.com/scalar/scalar
+  title: Stock Engine Service API
+  description: HTTP API for stock prices, quotes, fundamentals, instruments,
+    portfolio, orders, analytics, vault data, and websocket streaming used by
+    StockEngineClient.
+  version: 1.0.0
 servers:
-  - url: https://galaxy.scalar.com
-  - url: '{protocol}://void.scalar.com/{path}'
-    description: Responds with your request data
-    variables:
-      protocol:
-        enum:
-          - https
-        default: https
-      path:
-        default: ''
-security:
-  - bearerAuth: []
-  - basicAuth: []
-  - apiKeyQuery: []
-  - apiKeyHeader: []
-  - apiKeyCookie: []
-  - oAuth2: []
-  - openIdConnect: []
-tags:
-  - name: Authentication
-    description:
-      Some endpoints are public, but some require authentication. We provide
-      all the required endpoints to create an account and authorize yourself.
-  - name: Planets
-    description: Everything about planets
-  - name: Celestial Bodies
-    description: Celestial bodies are the planets and satellites in the Scalar Galaxy.
+  - url: https://paxportwallet.com/api/stocks/
+    description: Production
 paths:
-  '/planets':
+  /health:
     get:
-      tags:
-        - Planets
-      summary: Get all planets
-      description: It's easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.
-      operationId: getAllData
-      security:
-        - {}
-      parameters:
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/offset'
+      summary: Service health and API listing
       responses:
-        '200':
-          description: OK
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/X-Request-ID'
-            X-Pagination-Total:
-              $ref: '#/components/headers/X-Pagination-Total'
-            X-Pagination-Page:
-              $ref: '#/components/headers/X-Pagination-Page'
-            X-Pagination-Per-Page:
-              $ref: '#/components/headers/X-Pagination-Per-Page'
-            X-Cache-Control:
-              $ref: '#/components/headers/X-Cache-Control'
+        "200":
+          description: Health status
           content:
             application/json:
               schema:
-                allOf:
-                  - type: object
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                      - error
+                  network:
+                    type: string
+                  lastUpdateTs:
+                    type:
+                      - number
+                      - "null"
+                  trackedBases:
+                    type: array
+                    items:
+                      type: string
+                  feedCount:
+                    type: integer
+                  apis:
+                    type: object
                     properties:
-                      data:
+                      oracle:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Planet'
-                  - $ref: '#/components/schemas/PaginatedResource'
-            application/xml:
-              schema:
-                allOf:
-                  - type: object
-                    xml:
-                      name: planets
-                    properties:
-                      data:
+                          type: string
+                      stocks:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Planet'
-                  - $ref: '#/components/schemas/PaginatedResource'
-    post:
-      tags:
-        - Planets
-      summary: Create a planet
-      description: Time to play god and create a new planet. What do you think? Ah, don't think too much. What could go wrong anyway?
-      operationId: createPlanet
-      callbacks:
-        planetCreated:
-          '{$request.body#/successCallbackUrl}':
-            post:
-              requestBody:
-                description: Information about the newly created planet
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/Planet'
-              responses:
-                '200':
-                  description: Your server returns this code if it accepts the callback
-                '204':
-                  description: Your server should return this HTTP status code if no longer interested in further updates
-          '{$request.body#/failureCallbackUrl}':
-            post:
-              requestBody:
-                description: Information about which fields failed to validate
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/Planet'
-              responses:
-                '200':
-                  description: Your server returns this code if it accepts the callback
-        planetExploded:
-          '{$request.body#/successCallbackUrl}':
-            post:
-              requestBody:
-                description: Information about the newly exploded planet
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/Planet'
-              responses:
-                '200':
-                  description: Your server returns this code if it accepts the callback
-      requestBody:
-        description: Planet
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Planet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Planet'
-      responses:
-        '201':
-          description: Created
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/X-Request-ID'
-            Location:
-              $ref: '#/components/headers/Location'
-            X-Processing-Time:
-              $ref: '#/components/headers/X-Processing-Time'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Planet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Planet'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  '/planets/{planetId}':
+                          type: string
+                      portfolio:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - oracle
+                      - stocks
+                      - portfolio
+                required:
+                  - status
+                  - network
+                  - trackedBases
+                  - feedCount
+                  - apis
+  /prices:
     get:
-      tags:
-        - Planets
-      summary: Get a planet
-      description: You'll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.
-      operationId: getPlanet
-      security:
-        - {}
-      parameters:
-        - $ref: '#/components/parameters/planetId'
+      summary: All current prices
       responses:
-        '200':
-          description: Planet Found
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/X-Request-ID'
-            ETag:
-              $ref: '#/components/headers/ETag'
-            Last-Modified:
-              $ref: '#/components/headers/Last-Modified'
-            X-Cache-Control:
-              $ref: '#/components/headers/X-Cache-Control'
+        "200":
+          description: Prices
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Planet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Planet'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags:
-        - Planets
-      summary: Update a planet
-      description: Sometimes you make mistakes, that's fine. No worries, you can update all planets.
-      operationId: updatePlanet
-      requestBody:
-        description: New information about the planet
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Planet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Planet'
-      parameters:
-        - $ref: '#/components/parameters/planetId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Planet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Planet'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      tags:
-        - Planets
-      summary: Delete a planet
-      operationId: deletePlanet
-      description:
-        This endpoint was used to delete planets. Unfortunately, that caused
-        a lot of trouble for planets with life. So, this endpoint is now deprecated
-        and should not be used anymore.
-      x-scalar-stability: experimental
-      parameters:
-        - $ref: '#/components/parameters/planetId'
-      responses:
-        '204':
-          description: No Content
-        '404':
-          $ref: '#/components/responses/NotFound'
-  '/planets/{planetId}/image':
-    post:
-      tags:
-        - Planets
-      summary: Upload an image to a planet
-      description: Got a crazy good photo of a planet? Share it with the world!
-      operationId: uploadImage
-      parameters:
-        - $ref: '#/components/parameters/planetId'
-      requestBody:
-        description: Image to upload
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                image:
-                  type: string
-                  format: binary
-                  description: The image file to upload
-                  examples:
-                    - '@mars.jpg'
-                    - '@jupiter.png'
-      responses:
-        '200':
-          $ref: '#/components/responses/ImageUploaded'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  '/celestial-bodies':
-    post:
-      tags:
-        - Celestial Bodies
-      summary: Create a celestial body
-      operationId: createCelestialBody
-      requestBody:
-        description: Celestial body to create
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CelestialBody'
-      responses:
-        '201':
-          description: Celestial body created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CelestialBody'
-  '/user/signup':
-    post:
-      tags:
-        - Authentication
-      summary: Create a user
-      description: Time to create a user account, eh?
-      operationId: createUser
-      security:
-        - {}
-      requestBody:
-        description: User to create
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: '#/components/schemas/User'
-                - $ref: '#/components/schemas/Credentials'
-            examples:
-              Marc:
-                value:
-                  name: Marc
-                  email: marc@scalar.com
-                  password: i-love-scalar
-              Cam:
-                value:
-                  name: Cam
-                  email: cam@scalar.com
-                  password: scalar-is-cool
-          application/xml:
-            schema:
-              allOf:
-                - $ref: '#/components/schemas/User'
-                - $ref: '#/components/schemas/Credentials'
-            examples:
-              Marc:
-                value:
-                  name: Marc
-                  email: marc@scalar.com
-                  password: i-love-scalar
-              Cam:
-                value:
-                  name: Cam
-                  email: cam@scalar.com
-                  password: scalar-is-cool
-      responses:
-        '201':
-          description: Created
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/X-Request-ID'
-            Location:
-              $ref: '#/components/headers/Location'
-            X-Processing-Time:
-              $ref: '#/components/headers/X-Processing-Time'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-  '/auth/token':
-    post:
-      tags:
-        - Authentication
-      summary: Get a token
-      description: Yeah, this is the boring security stuff. Just get your super secret token and move on.
-      operationId: getToken
-      security:
-        - {}
-      requestBody:
-        description: Credentials to authenticate a user
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Credentials'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Credentials'
-      responses:
-        '201':
-          description: Token Created
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/X-Request-ID'
-            X-RateLimit-Limit:
-              $ref: '#/components/headers/X-RateLimit-Limit'
-            X-RateLimit-Remaining:
-              $ref: '#/components/headers/X-RateLimit-Remaining'
-            X-RateLimit-Reset:
-              $ref: '#/components/headers/X-RateLimit-Reset'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Token'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-  '/me':
+                type: object
+                properties:
+                  timestamp:
+                    type:
+                      - string
+                      - "null"
+                  prices:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        price:
+                          type: string
+                        priceUsd:
+                          type: number
+                        oraclePrice:
+                          type: string
+                        timestamp:
+                          type: number
+                        session:
+                          type: string
+                        tokenAddress:
+                          type: string
+                      required:
+                        - symbol
+                        - price
+                        - priceUsd
+                        - oraclePrice
+                        - timestamp
+                        - session
+                        - tokenAddress
+                required:
+                  - prices
+  /prices/{symbol}:
     get:
-      tags:
-        - Authentication
-      summary: Get authenticated user
-      description: Find yourself they say. That's what you can do here.
-      operationId: getMe
-      security:
-        - basicAuth: []
-        - oAuth2:
-            - read:account
-        - bearerAuth: []
-        - apiKeyHeader: []
-        - apiKeyQuery: []
+      summary: Price for a symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        '200':
-          description: OK
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/X-Request-ID'
-            ETag:
-              $ref: '#/components/headers/ETag'
-            Last-Modified:
-              $ref: '#/components/headers/Last-Modified'
-            X-Cache-Control:
-              $ref: '#/components/headers/X-Cache-Control'
+        "200":
+          description: Symbol price
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-webhooks:
-  newPlanet:
-    post:
-      tags:
-        - Planets
-      requestBody:
-        description: Information about a new planet
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Planet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Planet'
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  price:
+                    type: string
+                  priceUsd:
+                    type: number
+                  oraclePrice:
+                    type: string
+                  timestamp:
+                    type: number
+                  session:
+                    type: string
+                  tokenAddress:
+                    type: string
+                required:
+                  - symbol
+                  - price
+                  - priceUsd
+                  - oraclePrice
+                  - timestamp
+                  - session
+                  - tokenAddress
+  /api/stocks/{symbol}:
+    get:
+      summary: Comprehensive stock data
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        '200':
-          description:
-            Return a 200 status to indicate that the data was received
-            successfully
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      description: JWT Bearer token authentication
-    basicAuth:
-      type: http
-      scheme: basic
-      description: Basic HTTP authentication
-    apiKeyHeader:
-      type: apiKey
-      in: header
-      name: X-API-Key
-      description: API key request header
-    apiKeyQuery:
-      type: apiKey
-      in: query
-      name: api_key
-      description: API key query parameter
-    apiKeyCookie:
-      type: apiKey
-      in: cookie
-      name: api_key
-      description: API key browser cookie
-    oAuth2:
-      type: oauth2
-      description: OAuth 2.0 authentication
-      flows:
-        authorizationCode:
-          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
-          tokenUrl: https://galaxy.scalar.com/oauth/token
-          scopes:
-            read:account: read your account information
-            write:planets: modify planets in your account
-            read:planets: read your planets
-        clientCredentials:
-          tokenUrl: https://galaxy.scalar.com/oauth/token
-          scopes:
-            read:account: read your account information
-            write:planets: modify planets in your account
-            read:planets: read your planets
-        # Legacy
-        implicit:
-          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
-          scopes:
-            read:account: read your account information
-            write:planets: modify planets in your account
-            read:planets: read your planets
-        # Legacy
-        password:
-          tokenUrl: https://galaxy.scalar.com/oauth/token
-          scopes:
-            read:account: read your account information
-            write:planets: modify planets in your account
-            read:planets: read your planets
-    openIdConnect:
-      type: openIdConnect
-      openIdConnectUrl: https://galaxy.scalar.com/.well-known/openid-configuration
-      description: OpenID Connect Authentication
-  parameters:
-    planetId:
-      name: planetId
-      description: The ID of the planet to get
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        examples:
-          - 1
-    limit:
-      name: limit
-      description: The number of items to return
-      in: query
-      required: false
-      schema:
-        type: integer
-        format: int64
-        default: 10
-    offset:
-      name: offset
-      description:
-        The number of items to skip before starting to collect the result
-        set
-      in: query
-      required: false
-      schema:
-        type: integer
-        format: int64
-        default: 0
-  headers:
-    X-RateLimit-Limit:
-      description: The number of allowed requests in the current period
-      schema:
-        type: integer
-        example: 100
-    X-RateLimit-Remaining:
-      description: The number of remaining requests in the current period
-      schema:
-        type: integer
-        example: 95
-    X-RateLimit-Reset:
-      description: The number of seconds left in the current period
-      schema:
-        type: integer
-        example: 3600
-    X-Request-ID:
-      description: Unique identifier for the request
-      schema:
-        type: string
-        format: uuid
-        example: '123e4567-e89b-12d3-a456-426614174000'
-    X-Pagination-Total:
-      description: Total number of items available
-      schema:
-        type: integer
-        example: 1000
-    X-Pagination-Page:
-      description: Current page number
-      schema:
-        type: integer
-        example: 1
-    X-Pagination-Per-Page:
-      description: Number of items per page
-      schema:
-        type: integer
-        example: 10
-    X-Cache-Control:
-      description: Cache control directives
-      schema:
-        type: string
-        example: 'max-age=3600, public'
-    ETag:
-      description: Entity tag for caching
-      schema:
-        type: string
-        example: '"33a64df551"'
-    Last-Modified:
-      description: The last modification date of the resource
-      schema:
-        type: string
-        format: date-time
-        example: '2023-12-01T12:00:00Z'
-    Location:
-      description: The URL of the newly created resource
-      schema:
-        type: string
-        format: uri
-        example: 'https://galaxy.scalar.com/planets/123'
-    X-Processing-Time:
-      description: The time taken to process the request in milliseconds
-      schema:
-        type: integer
-        example: 150
-  responses:
-    ImageUploaded:
-      description: Image uploaded
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-        X-Cache-Control:
-          $ref: '#/components/headers/X-Cache-Control'
-      content:
-        application/json:
+        "200":
+          description: Stock data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  quote:
+                    nullable: true
+                    type: object
+                    properties:
+                      ask_price:
+                        type:
+                          - string
+                          - "null"
+                      ask_size:
+                        type:
+                          - integer
+                          - "null"
+                      bid_price:
+                        type:
+                          - string
+                          - "null"
+                      bid_size:
+                        type:
+                          - integer
+                          - "null"
+                      last_trade_price:
+                        type:
+                          - string
+                          - "null"
+                      last_extended_hours_trade_price:
+                        type:
+                          - string
+                          - "null"
+                      previous_close:
+                        type:
+                          - string
+                          - "null"
+                      adjusted_previous_close:
+                        type:
+                          - string
+                          - "null"
+                      previous_close_date:
+                        type:
+                          - string
+                          - "null"
+                      symbol:
+                        type: string
+                      trading_halted:
+                        type: boolean
+                      has_traded:
+                        type: boolean
+                      last_trade_price_source:
+                        type: string
+                      updated_at:
+                        type: string
+                      instrument:
+                        type: string
+                      instrument_id:
+                        type: string
+                    required:
+                      - symbol
+                      - trading_halted
+                      - has_traded
+                      - last_trade_price_source
+                      - updated_at
+                      - instrument
+                      - instrument_id
+                  fundamentals:
+                    nullable: true
+                    type: object
+                    properties:
+                      open:
+                        type:
+                          - string
+                          - "null"
+                      high:
+                        type:
+                          - string
+                          - "null"
+                      low:
+                        type:
+                          - string
+                          - "null"
+                      volume:
+                        type:
+                          - string
+                          - "null"
+                      average_volume:
+                        type:
+                          - string
+                          - "null"
+                      average_volume_2_weeks:
+                        type:
+                          - string
+                          - "null"
+                      high_52_weeks:
+                        type:
+                          - string
+                          - "null"
+                      low_52_weeks:
+                        type:
+                          - string
+                          - "null"
+                      market_cap:
+                        type:
+                          - string
+                          - "null"
+                      dividend_yield:
+                        type:
+                          - string
+                          - "null"
+                      pe_ratio:
+                        type:
+                          - string
+                          - "null"
+                      pb_ratio:
+                        type:
+                          - string
+                          - "null"
+                      description:
+                        type:
+                          - string
+                          - "null"
+                      instrument:
+                        type: string
+                      ceo:
+                        type:
+                          - string
+                          - "null"
+                      headquarters_city:
+                        type:
+                          - string
+                          - "null"
+                      headquarters_state:
+                        type:
+                          - string
+                          - "null"
+                      sector:
+                        type:
+                          - string
+                          - "null"
+                      industry:
+                        type:
+                          - string
+                          - "null"
+                      num_employees:
+                        type:
+                          - integer
+                          - "null"
+                      year_founded:
+                        type:
+                          - integer
+                          - "null"
+                    required:
+                      - instrument
+                  instrument:
+                    nullable: true
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      url:
+                        type: string
+                      quote:
+                        type: string
+                      fundamentals:
+                        type: string
+                      splits:
+                        type: string
+                      state:
+                        type: string
+                      market:
+                        type: string
+                      simple_name:
+                        type:
+                          - string
+                          - "null"
+                      name:
+                        type: string
+                      tradeable:
+                        type: boolean
+                      tradability:
+                        type: string
+                      symbol:
+                        type: string
+                      bloomberg_unique:
+                        type: string
+                      margin_initial_ratio:
+                        type: string
+                      maintenance_ratio:
+                        type: string
+                      country:
+                        type: string
+                      day_trade_ratio:
+                        type: string
+                      list_date:
+                        type:
+                          - string
+                          - "null"
+                      min_tick_size:
+                        type:
+                          - string
+                          - "null"
+                      type:
+                        type: string
+                      tradeable_chain_id:
+                        type:
+                          - string
+                          - "null"
+                      rhs_tradability:
+                        type: string
+                      fractional_tradability:
+                        type: string
+                      default_collar_fraction:
+                        type: string
+                    required:
+                      - id
+                      - url
+                      - quote
+                      - fundamentals
+                      - splits
+                      - state
+                      - market
+                      - name
+                      - tradeable
+                      - tradability
+                      - symbol
+                      - bloomberg_unique
+                      - margin_initial_ratio
+                      - maintenance_ratio
+                      - country
+                      - day_trade_ratio
+                      - type
+                      - rhs_tradability
+                      - fractional_tradability
+                      - default_collar_fraction
+                required:
+                  - symbol
+  /api/stocks:
+    get:
+      summary: Comprehensive data for multiple stocks
+      parameters:
+        - name: symbols
+          in: query
+          required: true
           schema:
-            $ref: '#/components/schemas/ImageUploadedMessage'
-        application/xml:
+            type: string
+            description: Comma-separated symbols
+      responses:
+        "200":
+          description: Stock map
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    symbol:
+                      type: string
+                    quote:
+                      nullable: true
+                      type: object
+                      properties:
+                        ask_price:
+                          type:
+                            - string
+                            - "null"
+                        ask_size:
+                          type:
+                            - integer
+                            - "null"
+                        bid_price:
+                          type:
+                            - string
+                            - "null"
+                        bid_size:
+                          type:
+                            - integer
+                            - "null"
+                        last_trade_price:
+                          type:
+                            - string
+                            - "null"
+                        last_extended_hours_trade_price:
+                          type:
+                            - string
+                            - "null"
+                        previous_close:
+                          type:
+                            - string
+                            - "null"
+                        adjusted_previous_close:
+                          type:
+                            - string
+                            - "null"
+                        previous_close_date:
+                          type:
+                            - string
+                            - "null"
+                        symbol:
+                          type: string
+                        trading_halted:
+                          type: boolean
+                        has_traded:
+                          type: boolean
+                        last_trade_price_source:
+                          type: string
+                        updated_at:
+                          type: string
+                        instrument:
+                          type: string
+                        instrument_id:
+                          type: string
+                      required:
+                        - symbol
+                        - trading_halted
+                        - has_traded
+                        - last_trade_price_source
+                        - updated_at
+                        - instrument
+                        - instrument_id
+                    fundamentals:
+                      nullable: true
+                      type: object
+                      properties:
+                        open:
+                          type:
+                            - string
+                            - "null"
+                        high:
+                          type:
+                            - string
+                            - "null"
+                        low:
+                          type:
+                            - string
+                            - "null"
+                        volume:
+                          type:
+                            - string
+                            - "null"
+                        average_volume:
+                          type:
+                            - string
+                            - "null"
+                        average_volume_2_weeks:
+                          type:
+                            - string
+                            - "null"
+                        high_52_weeks:
+                          type:
+                            - string
+                            - "null"
+                        low_52_weeks:
+                          type:
+                            - string
+                            - "null"
+                        market_cap:
+                          type:
+                            - string
+                            - "null"
+                        dividend_yield:
+                          type:
+                            - string
+                            - "null"
+                        pe_ratio:
+                          type:
+                            - string
+                            - "null"
+                        pb_ratio:
+                          type:
+                            - string
+                            - "null"
+                        description:
+                          type:
+                            - string
+                            - "null"
+                        instrument:
+                          type: string
+                        ceo:
+                          type:
+                            - string
+                            - "null"
+                        headquarters_city:
+                          type:
+                            - string
+                            - "null"
+                        headquarters_state:
+                          type:
+                            - string
+                            - "null"
+                        sector:
+                          type:
+                            - string
+                            - "null"
+                        industry:
+                          type:
+                            - string
+                            - "null"
+                        num_employees:
+                          type:
+                            - integer
+                            - "null"
+                        year_founded:
+                          type:
+                            - integer
+                            - "null"
+                      required:
+                        - instrument
+                    instrument:
+                      nullable: true
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        url:
+                          type: string
+                        quote:
+                          type: string
+                        fundamentals:
+                          type: string
+                        splits:
+                          type: string
+                        state:
+                          type: string
+                        market:
+                          type: string
+                        simple_name:
+                          type:
+                            - string
+                            - "null"
+                        name:
+                          type: string
+                        tradeable:
+                          type: boolean
+                        tradability:
+                          type: string
+                        symbol:
+                          type: string
+                        bloomberg_unique:
+                          type: string
+                        margin_initial_ratio:
+                          type: string
+                        maintenance_ratio:
+                          type: string
+                        country:
+                          type: string
+                        day_trade_ratio:
+                          type: string
+                        list_date:
+                          type:
+                            - string
+                            - "null"
+                        min_tick_size:
+                          type:
+                            - string
+                            - "null"
+                        type:
+                          type: string
+                        tradeable_chain_id:
+                          type:
+                            - string
+                            - "null"
+                        rhs_tradability:
+                          type: string
+                        fractional_tradability:
+                          type: string
+                        default_collar_fraction:
+                          type: string
+                      required:
+                        - id
+                        - url
+                        - quote
+                        - fundamentals
+                        - splits
+                        - state
+                        - market
+                        - name
+                        - tradeable
+                        - tradability
+                        - symbol
+                        - bloomberg_unique
+                        - margin_initial_ratio
+                        - maintenance_ratio
+                        - country
+                        - day_trade_ratio
+                        - type
+                        - rhs_tradability
+                        - fractional_tradability
+                        - default_collar_fraction
+                  required:
+                    - symbol
+  /api/stocks/{symbol}/quote:
+    get:
+      summary: Stock quote
+      parameters:
+        - name: symbol
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/ImageUploadedMessage'
-    BadRequest:
-      description: Bad Request
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
+            type: string
+      responses:
+        "200":
+          description: Quote
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ask_price:
+                    type:
+                      - string
+                      - "null"
+                  ask_size:
+                    type:
+                      - integer
+                      - "null"
+                  bid_price:
+                    type:
+                      - string
+                      - "null"
+                  bid_size:
+                    type:
+                      - integer
+                      - "null"
+                  last_trade_price:
+                    type:
+                      - string
+                      - "null"
+                  last_extended_hours_trade_price:
+                    type:
+                      - string
+                      - "null"
+                  previous_close:
+                    type:
+                      - string
+                      - "null"
+                  adjusted_previous_close:
+                    type:
+                      - string
+                      - "null"
+                  previous_close_date:
+                    type:
+                      - string
+                      - "null"
+                  symbol:
+                    type: string
+                  trading_halted:
+                    type: boolean
+                  has_traded:
+                    type: boolean
+                  last_trade_price_source:
+                    type: string
+                  updated_at:
+                    type: string
+                  instrument:
+                    type: string
+                  instrument_id:
+                    type: string
+                required:
+                  - symbol
+                  - trading_halted
+                  - has_traded
+                  - last_trade_price_source
+                  - updated_at
+                  - instrument
+                  - instrument_id
+  /api/quotes:
+    get:
+      summary: Quotes for multiple symbols
+      parameters:
+        - name: symbols
+          in: query
+          required: true
           schema:
-            $ref: '#/components/schemas/BadRequestError'
-        application/xml:
+            type: string
+            description: Comma-separated symbols
+      responses:
+        "200":
+          description: Quotes map
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    ask_price:
+                      type:
+                        - string
+                        - "null"
+                    ask_size:
+                      type:
+                        - integer
+                        - "null"
+                    bid_price:
+                      type:
+                        - string
+                        - "null"
+                    bid_size:
+                      type:
+                        - integer
+                        - "null"
+                    last_trade_price:
+                      type:
+                        - string
+                        - "null"
+                    last_extended_hours_trade_price:
+                      type:
+                        - string
+                        - "null"
+                    previous_close:
+                      type:
+                        - string
+                        - "null"
+                    adjusted_previous_close:
+                      type:
+                        - string
+                        - "null"
+                    previous_close_date:
+                      type:
+                        - string
+                        - "null"
+                    symbol:
+                      type: string
+                    trading_halted:
+                      type: boolean
+                    has_traded:
+                      type: boolean
+                    last_trade_price_source:
+                      type: string
+                    updated_at:
+                      type: string
+                    instrument:
+                      type: string
+                    instrument_id:
+                      type: string
+                  required:
+                    - symbol
+                    - trading_halted
+                    - has_traded
+                    - last_trade_price_source
+                    - updated_at
+                    - instrument
+                    - instrument_id
+  /api/stocks/{symbol}/fundamentals:
+    get:
+      summary: Stock fundamentals
+      parameters:
+        - name: symbol
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/BadRequestError'
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
+            type: string
+      responses:
+        "200":
+          description: Fundamentals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  open:
+                    type:
+                      - string
+                      - "null"
+                  high:
+                    type:
+                      - string
+                      - "null"
+                  low:
+                    type:
+                      - string
+                      - "null"
+                  volume:
+                    type:
+                      - string
+                      - "null"
+                  average_volume:
+                    type:
+                      - string
+                      - "null"
+                  average_volume_2_weeks:
+                    type:
+                      - string
+                      - "null"
+                  high_52_weeks:
+                    type:
+                      - string
+                      - "null"
+                  low_52_weeks:
+                    type:
+                      - string
+                      - "null"
+                  market_cap:
+                    type:
+                      - string
+                      - "null"
+                  dividend_yield:
+                    type:
+                      - string
+                      - "null"
+                  pe_ratio:
+                    type:
+                      - string
+                      - "null"
+                  pb_ratio:
+                    type:
+                      - string
+                      - "null"
+                  description:
+                    type:
+                      - string
+                      - "null"
+                  instrument:
+                    type: string
+                  ceo:
+                    type:
+                      - string
+                      - "null"
+                  headquarters_city:
+                    type:
+                      - string
+                      - "null"
+                  headquarters_state:
+                    type:
+                      - string
+                      - "null"
+                  sector:
+                    type:
+                      - string
+                      - "null"
+                  industry:
+                    type:
+                      - string
+                      - "null"
+                  num_employees:
+                    type:
+                      - integer
+                      - "null"
+                  year_founded:
+                    type:
+                      - integer
+                      - "null"
+                required:
+                  - instrument
+  /api/fundamentals:
+    get:
+      summary: Fundamentals for multiple symbols
+      parameters:
+        - name: symbols
+          in: query
+          required: true
           schema:
-            $ref: '#/components/schemas/ForbiddenError'
-        application/xml:
+            type: string
+            description: Comma-separated symbols
+      responses:
+        "200":
+          description: Fundamentals map
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    open:
+                      type:
+                        - string
+                        - "null"
+                    high:
+                      type:
+                        - string
+                        - "null"
+                    low:
+                      type:
+                        - string
+                        - "null"
+                    volume:
+                      type:
+                        - string
+                        - "null"
+                    average_volume:
+                      type:
+                        - string
+                        - "null"
+                    average_volume_2_weeks:
+                      type:
+                        - string
+                        - "null"
+                    high_52_weeks:
+                      type:
+                        - string
+                        - "null"
+                    low_52_weeks:
+                      type:
+                        - string
+                        - "null"
+                    market_cap:
+                      type:
+                        - string
+                        - "null"
+                    dividend_yield:
+                      type:
+                        - string
+                        - "null"
+                    pe_ratio:
+                      type:
+                        - string
+                        - "null"
+                    pb_ratio:
+                      type:
+                        - string
+                        - "null"
+                    description:
+                      type:
+                        - string
+                        - "null"
+                    instrument:
+                      type: string
+                    ceo:
+                      type:
+                        - string
+                        - "null"
+                    headquarters_city:
+                      type:
+                        - string
+                        - "null"
+                    headquarters_state:
+                      type:
+                        - string
+                        - "null"
+                    sector:
+                      type:
+                        - string
+                        - "null"
+                    industry:
+                      type:
+                        - string
+                        - "null"
+                    num_employees:
+                      type:
+                        - integer
+                        - "null"
+                    year_founded:
+                      type:
+                        - integer
+                        - "null"
+                  required:
+                    - instrument
+  /api/stocks/{symbol}/historicals:
+    get:
+      summary: Historical price data
+      parameters:
+        - name: symbol
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/ForbiddenError'
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
+            type: string
+        - name: interval
+          in: query
           schema:
-            $ref: '#/components/schemas/NotFoundError'
-        application/xml:
+            type: string
+            enum:
+              - 5minute
+              - 10minute
+              - hour
+              - day
+              - week
+        - name: span
+          in: query
           schema:
-            $ref: '#/components/schemas/NotFoundError'
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
+            type: string
+            enum:
+              - day
+              - week
+              - month
+              - 3month
+              - year
+              - 5year
+        - name: bounds
+          in: query
           schema:
-            $ref: '#/components/schemas/UnauthorizedError'
-        application/xml:
+            type: string
+            enum:
+              - regular
+              - extended
+              - trading
+      responses:
+        "200":
+          description: Historicals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quote:
+                    type: string
+                  symbol:
+                    type: string
+                  interval:
+                    type: string
+                  span:
+                    type: string
+                  bounds:
+                    type: string
+                  previous_close_price:
+                    type:
+                      - string
+                      - "null"
+                  previous_close_time:
+                    type:
+                      - string
+                      - "null"
+                  open_price:
+                    type:
+                      - string
+                      - "null"
+                  open_time:
+                    type:
+                      - string
+                      - "null"
+                  instrument:
+                    type: string
+                  historicals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        begins_at:
+                          type: string
+                        open_price:
+                          type: string
+                        close_price:
+                          type: string
+                        high_price:
+                          type: string
+                        low_price:
+                          type: string
+                        volume:
+                          type: integer
+                        session:
+                          type: string
+                        interpolated:
+                          type: boolean
+                      required:
+                        - begins_at
+                        - open_price
+                        - close_price
+                        - high_price
+                        - low_price
+                        - volume
+                        - session
+                        - interpolated
+                required:
+                  - quote
+                  - symbol
+                  - interval
+                  - span
+                  - bounds
+                  - instrument
+                  - historicals
+  /api/historicals:
+    get:
+      summary: Historicals for multiple symbols
+      parameters:
+        - name: symbols
+          in: query
+          required: true
           schema:
-            $ref: '#/components/schemas/UnauthorizedError'
-    Conflict:
-      description: Conflict
-      content:
-        application/json:
+            type: string
+            description: Comma-separated symbols
+        - name: interval
+          in: query
           schema:
-            $ref: '#/components/schemas/Conflict'
-        application/xml:
+            type: string
+            enum:
+              - 5minute
+              - 10minute
+              - hour
+              - day
+              - week
+        - name: span
+          in: query
           schema:
-            $ref: '#/components/schemas/Conflict'
-    UnprocessableEntity:
-      description: Unprocessable Entity
-      content:
-        application/json:
+            type: string
+            enum:
+              - day
+              - week
+              - month
+              - 3month
+              - year
+              - 5year
+        - name: bounds
+          in: query
           schema:
-            $ref: '#/components/schemas/UnprocessableEntity'
-        application/xml:
+            type: string
+            enum:
+              - regular
+              - extended
+              - trading
+      responses:
+        "200":
+          description: Historicals map
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    quote:
+                      type: string
+                    symbol:
+                      type: string
+                    interval:
+                      type: string
+                    span:
+                      type: string
+                    bounds:
+                      type: string
+                    previous_close_price:
+                      type:
+                        - string
+                        - "null"
+                    previous_close_time:
+                      type:
+                        - string
+                        - "null"
+                    open_price:
+                      type:
+                        - string
+                        - "null"
+                    open_time:
+                      type:
+                        - string
+                        - "null"
+                    instrument:
+                      type: string
+                    historicals:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          begins_at:
+                            type: string
+                          open_price:
+                            type: string
+                          close_price:
+                            type: string
+                          high_price:
+                            type: string
+                          low_price:
+                            type: string
+                          volume:
+                            type: integer
+                          session:
+                            type: string
+                          interpolated:
+                            type: boolean
+                        required:
+                          - begins_at
+                          - open_price
+                          - close_price
+                          - high_price
+                          - low_price
+                          - volume
+                          - session
+                          - interpolated
+                  required:
+                    - quote
+                    - symbol
+                    - interval
+                    - span
+                    - bounds
+                    - instrument
+                    - historicals
+  /api/stocks/{symbol}/instrument:
+    get:
+      summary: Instrument for symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/UnprocessableEntity'
-    TooManyRequests:
-      description: Too Many Requests
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-        X-RateLimit-Limit:
-          $ref: '#/components/headers/X-RateLimit-Limit'
-        X-RateLimit-Remaining:
-          $ref: '#/components/headers/X-RateLimit-Remaining'
-        X-RateLimit-Reset:
-          $ref: '#/components/headers/X-RateLimit-Reset'
-        Retry-After:
-          description: The number of seconds to wait before retrying
+            type: string
+      responses:
+        "200":
+          description: Instrument
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                  quote:
+                    type: string
+                  fundamentals:
+                    type: string
+                  splits:
+                    type: string
+                  state:
+                    type: string
+                  market:
+                    type: string
+                  simple_name:
+                    type:
+                      - string
+                      - "null"
+                  name:
+                    type: string
+                  tradeable:
+                    type: boolean
+                  tradability:
+                    type: string
+                  symbol:
+                    type: string
+                  bloomberg_unique:
+                    type: string
+                  margin_initial_ratio:
+                    type: string
+                  maintenance_ratio:
+                    type: string
+                  country:
+                    type: string
+                  day_trade_ratio:
+                    type: string
+                  list_date:
+                    type:
+                      - string
+                      - "null"
+                  min_tick_size:
+                    type:
+                      - string
+                      - "null"
+                  type:
+                    type: string
+                  tradeable_chain_id:
+                    type:
+                      - string
+                      - "null"
+                  rhs_tradability:
+                    type: string
+                  fractional_tradability:
+                    type: string
+                  default_collar_fraction:
+                    type: string
+                required:
+                  - id
+                  - url
+                  - quote
+                  - fundamentals
+                  - splits
+                  - state
+                  - market
+                  - name
+                  - tradeable
+                  - tradability
+                  - symbol
+                  - bloomberg_unique
+                  - margin_initial_ratio
+                  - maintenance_ratio
+                  - country
+                  - day_trade_ratio
+                  - type
+                  - rhs_tradability
+                  - fractional_tradability
+                  - default_collar_fraction
+  /api/instruments/{id}:
+    get:
+      summary: Instrument by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Instrument
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                  quote:
+                    type: string
+                  fundamentals:
+                    type: string
+                  splits:
+                    type: string
+                  state:
+                    type: string
+                  market:
+                    type: string
+                  simple_name:
+                    type:
+                      - string
+                      - "null"
+                  name:
+                    type: string
+                  tradeable:
+                    type: boolean
+                  tradability:
+                    type: string
+                  symbol:
+                    type: string
+                  bloomberg_unique:
+                    type: string
+                  margin_initial_ratio:
+                    type: string
+                  maintenance_ratio:
+                    type: string
+                  country:
+                    type: string
+                  day_trade_ratio:
+                    type: string
+                  list_date:
+                    type:
+                      - string
+                      - "null"
+                  min_tick_size:
+                    type:
+                      - string
+                      - "null"
+                  type:
+                    type: string
+                  tradeable_chain_id:
+                    type:
+                      - string
+                      - "null"
+                  rhs_tradability:
+                    type: string
+                  fractional_tradability:
+                    type: string
+                  default_collar_fraction:
+                    type: string
+                required:
+                  - id
+                  - url
+                  - quote
+                  - fundamentals
+                  - splits
+                  - state
+                  - market
+                  - name
+                  - tradeable
+                  - tradability
+                  - symbol
+                  - bloomberg_unique
+                  - margin_initial_ratio
+                  - maintenance_ratio
+                  - country
+                  - day_trade_ratio
+                  - type
+                  - rhs_tradability
+                  - fractional_tradability
+                  - default_collar_fraction
+  /api/instruments/{id}/splits:
+    get:
+      summary: Instrument splits
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Splits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    instrument:
+                      type: string
+                    execution_date:
+                      type: string
+                    divisor:
+                      type: string
+                    multiplier:
+                      type: string
+                  required:
+                    - url
+                    - instrument
+                    - execution_date
+                    - divisor
+                    - multiplier
+  /api/search:
+    get:
+      summary: Search instruments
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  instruments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        url:
+                          type: string
+                        quote:
+                          type: string
+                        fundamentals:
+                          type: string
+                        splits:
+                          type: string
+                        state:
+                          type: string
+                        market:
+                          type: string
+                        simple_name:
+                          type:
+                            - string
+                            - "null"
+                        name:
+                          type: string
+                        tradeable:
+                          type: boolean
+                        tradability:
+                          type: string
+                        symbol:
+                          type: string
+                        bloomberg_unique:
+                          type: string
+                        margin_initial_ratio:
+                          type: string
+                        maintenance_ratio:
+                          type: string
+                        country:
+                          type: string
+                        day_trade_ratio:
+                          type: string
+                        list_date:
+                          type:
+                            - string
+                            - "null"
+                        min_tick_size:
+                          type:
+                            - string
+                            - "null"
+                        type:
+                          type: string
+                        tradeable_chain_id:
+                          type:
+                            - string
+                            - "null"
+                        rhs_tradability:
+                          type: string
+                        fractional_tradability:
+                          type: string
+                        default_collar_fraction:
+                          type: string
+                      required:
+                        - id
+                        - url
+                        - quote
+                        - fundamentals
+                        - splits
+                        - state
+                        - market
+                        - name
+                        - tradeable
+                        - tradability
+                        - symbol
+                        - bloomberg_unique
+                        - margin_initial_ratio
+                        - maintenance_ratio
+                        - country
+                        - day_trade_ratio
+                        - type
+                        - rhs_tradability
+                        - fractional_tradability
+                        - default_collar_fraction
+                required:
+                  - instruments
+  /api/markets:
+    get:
+      summary: All markets
+      responses:
+        "200":
+          description: Markets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    todays_hours:
+                      type: string
+                    mic:
+                      type: string
+                    operating_mic:
+                      type: string
+                    acronym:
+                      type: string
+                    name:
+                      type: string
+                    city:
+                      type: string
+                    country:
+                      type: string
+                    timezone:
+                      type: string
+                    website:
+                      type: string
+                  required:
+                    - url
+                    - todays_hours
+                    - mic
+                    - operating_mic
+                    - acronym
+                    - name
+                    - city
+                    - country
+                    - timezone
+                    - website
+  /api/markets/{mic}:
+    get:
+      summary: Market by MIC
+      parameters:
+        - name: mic
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  todays_hours:
+                    type: string
+                  mic:
+                    type: string
+                  operating_mic:
+                    type: string
+                  acronym:
+                    type: string
+                  name:
+                    type: string
+                  city:
+                    type: string
+                  country:
+                    type: string
+                  timezone:
+                    type: string
+                  website:
+                    type: string
+                required:
+                  - url
+                  - todays_hours
+                  - mic
+                  - operating_mic
+                  - acronym
+                  - name
+                  - city
+                  - country
+                  - timezone
+                  - website
+  /api/markets/{mic}/hours/{date}:
+    get:
+      summary: Market hours for date
+      parameters:
+        - name: mic
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Market hours
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                  is_open:
+                    type: boolean
+                  opens_at:
+                    type:
+                      - string
+                      - "null"
+                  closes_at:
+                    type:
+                      - string
+                      - "null"
+                  extended_opens_at:
+                    type:
+                      - string
+                      - "null"
+                  extended_closes_at:
+                    type:
+                      - string
+                      - "null"
+                  previous_open_hours:
+                    type:
+                      - string
+                      - "null"
+                  next_open_hours:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - date
+                  - is_open
+                  - opens_at
+                  - closes_at
+                  - extended_opens_at
+                  - extended_closes_at
+                  - previous_open_hours
+                  - next_open_hours
+  /api/popular:
+    get:
+      summary: Popular stocks
+      parameters:
+        - name: count
+          in: query
           schema:
             type: integer
-            example: 60
-      content:
-        application/json:
+            enum:
+              - 10
+              - 100
+      responses:
+        "200":
+          description: Popular stocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    symbol:
+                      type: string
+                    instrument:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        url:
+                          type: string
+                        quote:
+                          type: string
+                        fundamentals:
+                          type: string
+                        splits:
+                          type: string
+                        state:
+                          type: string
+                        market:
+                          type: string
+                        simple_name:
+                          type:
+                            - string
+                            - "null"
+                        name:
+                          type: string
+                        tradeable:
+                          type: boolean
+                        tradability:
+                          type: string
+                        symbol:
+                          type: string
+                        bloomberg_unique:
+                          type: string
+                        margin_initial_ratio:
+                          type: string
+                        maintenance_ratio:
+                          type: string
+                        country:
+                          type: string
+                        day_trade_ratio:
+                          type: string
+                        list_date:
+                          type:
+                            - string
+                            - "null"
+                        min_tick_size:
+                          type:
+                            - string
+                            - "null"
+                        type:
+                          type: string
+                        tradeable_chain_id:
+                          type:
+                            - string
+                            - "null"
+                        rhs_tradability:
+                          type: string
+                        fractional_tradability:
+                          type: string
+                        default_collar_fraction:
+                          type: string
+                      required:
+                        - id
+                        - url
+                        - quote
+                        - fundamentals
+                        - splits
+                        - state
+                        - market
+                        - name
+                        - tradeable
+                        - tradability
+                        - symbol
+                        - bloomberg_unique
+                        - margin_initial_ratio
+                        - maintenance_ratio
+                        - country
+                        - day_trade_ratio
+                        - type
+                        - rhs_tradability
+                        - fractional_tradability
+                        - default_collar_fraction
+                    quote:
+                      nullable: true
+                      type: object
+                      properties:
+                        ask_price:
+                          type:
+                            - string
+                            - "null"
+                        ask_size:
+                          type:
+                            - integer
+                            - "null"
+                        bid_price:
+                          type:
+                            - string
+                            - "null"
+                        bid_size:
+                          type:
+                            - integer
+                            - "null"
+                        last_trade_price:
+                          type:
+                            - string
+                            - "null"
+                        last_extended_hours_trade_price:
+                          type:
+                            - string
+                            - "null"
+                        previous_close:
+                          type:
+                            - string
+                            - "null"
+                        adjusted_previous_close:
+                          type:
+                            - string
+                            - "null"
+                        previous_close_date:
+                          type:
+                            - string
+                            - "null"
+                        symbol:
+                          type: string
+                        trading_halted:
+                          type: boolean
+                        has_traded:
+                          type: boolean
+                        last_trade_price_source:
+                          type: string
+                        updated_at:
+                          type: string
+                        instrument:
+                          type: string
+                        instrument_id:
+                          type: string
+                      required:
+                        - symbol
+                        - trading_halted
+                        - has_traded
+                        - last_trade_price_source
+                        - updated_at
+                        - instrument
+                        - instrument_id
+                    fundamentals:
+                      nullable: true
+                      type: object
+                      properties:
+                        open:
+                          type:
+                            - string
+                            - "null"
+                        high:
+                          type:
+                            - string
+                            - "null"
+                        low:
+                          type:
+                            - string
+                            - "null"
+                        volume:
+                          type:
+                            - string
+                            - "null"
+                        average_volume:
+                          type:
+                            - string
+                            - "null"
+                        average_volume_2_weeks:
+                          type:
+                            - string
+                            - "null"
+                        high_52_weeks:
+                          type:
+                            - string
+                            - "null"
+                        low_52_weeks:
+                          type:
+                            - string
+                            - "null"
+                        market_cap:
+                          type:
+                            - string
+                            - "null"
+                        dividend_yield:
+                          type:
+                            - string
+                            - "null"
+                        pe_ratio:
+                          type:
+                            - string
+                            - "null"
+                        pb_ratio:
+                          type:
+                            - string
+                            - "null"
+                        description:
+                          type:
+                            - string
+                            - "null"
+                        instrument:
+                          type: string
+                        ceo:
+                          type:
+                            - string
+                            - "null"
+                        headquarters_city:
+                          type:
+                            - string
+                            - "null"
+                        headquarters_state:
+                          type:
+                            - string
+                            - "null"
+                        sector:
+                          type:
+                            - string
+                            - "null"
+                        industry:
+                          type:
+                            - string
+                            - "null"
+                        num_employees:
+                          type:
+                            - integer
+                            - "null"
+                        year_founded:
+                          type:
+                            - integer
+                            - "null"
+                      required:
+                        - instrument
+                  required:
+                    - symbol
+                    - instrument
+  /api/tracked-symbols:
+    get:
+      summary: Tracked symbols
+      responses:
+        "200":
+          description: Symbols
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/tracked-stocks:
+    get:
+      summary: Tracked stocks full data
+      responses:
+        "200":
+          description: Tracked stocks
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    symbol:
+                      type: string
+                    quote:
+                      nullable: true
+                      type: object
+                      properties:
+                        ask_price:
+                          type:
+                            - string
+                            - "null"
+                        ask_size:
+                          type:
+                            - integer
+                            - "null"
+                        bid_price:
+                          type:
+                            - string
+                            - "null"
+                        bid_size:
+                          type:
+                            - integer
+                            - "null"
+                        last_trade_price:
+                          type:
+                            - string
+                            - "null"
+                        last_extended_hours_trade_price:
+                          type:
+                            - string
+                            - "null"
+                        previous_close:
+                          type:
+                            - string
+                            - "null"
+                        adjusted_previous_close:
+                          type:
+                            - string
+                            - "null"
+                        previous_close_date:
+                          type:
+                            - string
+                            - "null"
+                        symbol:
+                          type: string
+                        trading_halted:
+                          type: boolean
+                        has_traded:
+                          type: boolean
+                        last_trade_price_source:
+                          type: string
+                        updated_at:
+                          type: string
+                        instrument:
+                          type: string
+                        instrument_id:
+                          type: string
+                      required:
+                        - symbol
+                        - trading_halted
+                        - has_traded
+                        - last_trade_price_source
+                        - updated_at
+                        - instrument
+                        - instrument_id
+                    fundamentals:
+                      nullable: true
+                      type: object
+                      properties:
+                        open:
+                          type:
+                            - string
+                            - "null"
+                        high:
+                          type:
+                            - string
+                            - "null"
+                        low:
+                          type:
+                            - string
+                            - "null"
+                        volume:
+                          type:
+                            - string
+                            - "null"
+                        average_volume:
+                          type:
+                            - string
+                            - "null"
+                        average_volume_2_weeks:
+                          type:
+                            - string
+                            - "null"
+                        high_52_weeks:
+                          type:
+                            - string
+                            - "null"
+                        low_52_weeks:
+                          type:
+                            - string
+                            - "null"
+                        market_cap:
+                          type:
+                            - string
+                            - "null"
+                        dividend_yield:
+                          type:
+                            - string
+                            - "null"
+                        pe_ratio:
+                          type:
+                            - string
+                            - "null"
+                        pb_ratio:
+                          type:
+                            - string
+                            - "null"
+                        description:
+                          type:
+                            - string
+                            - "null"
+                        instrument:
+                          type: string
+                        ceo:
+                          type:
+                            - string
+                            - "null"
+                        headquarters_city:
+                          type:
+                            - string
+                            - "null"
+                        headquarters_state:
+                          type:
+                            - string
+                            - "null"
+                        sector:
+                          type:
+                            - string
+                            - "null"
+                        industry:
+                          type:
+                            - string
+                            - "null"
+                        num_employees:
+                          type:
+                            - integer
+                            - "null"
+                        year_founded:
+                          type:
+                            - integer
+                            - "null"
+                      required:
+                        - instrument
+                    instrument:
+                      nullable: true
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        url:
+                          type: string
+                        quote:
+                          type: string
+                        fundamentals:
+                          type: string
+                        splits:
+                          type: string
+                        state:
+                          type: string
+                        market:
+                          type: string
+                        simple_name:
+                          type:
+                            - string
+                            - "null"
+                        name:
+                          type: string
+                        tradeable:
+                          type: boolean
+                        tradability:
+                          type: string
+                        symbol:
+                          type: string
+                        bloomberg_unique:
+                          type: string
+                        margin_initial_ratio:
+                          type: string
+                        maintenance_ratio:
+                          type: string
+                        country:
+                          type: string
+                        day_trade_ratio:
+                          type: string
+                        list_date:
+                          type:
+                            - string
+                            - "null"
+                        min_tick_size:
+                          type:
+                            - string
+                            - "null"
+                        type:
+                          type: string
+                        tradeable_chain_id:
+                          type:
+                            - string
+                            - "null"
+                        rhs_tradability:
+                          type: string
+                        fractional_tradability:
+                          type: string
+                        default_collar_fraction:
+                          type: string
+                      required:
+                        - id
+                        - url
+                        - quote
+                        - fundamentals
+                        - splits
+                        - state
+                        - market
+                        - name
+                        - tradeable
+                        - tradability
+                        - symbol
+                        - bloomberg_unique
+                        - margin_initial_ratio
+                        - maintenance_ratio
+                        - country
+                        - day_trade_ratio
+                        - type
+                        - rhs_tradability
+                        - fractional_tradability
+                        - default_collar_fraction
+                  required:
+                    - symbol
+  /api/portfolio/{address}:
+    get:
+      summary: Portfolio overview
+      parameters:
+        - name: address
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/TooManyRequestsError'
-        application/xml:
+            type: string
+        - name: prices
+          in: query
           schema:
-            $ref: '#/components/schemas/TooManyRequestsError'
+            type: string
+            description: JSON-encoded map of symbol->price
+      responses:
+        "200":
+          description: Portfolio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  timestamp:
+                    type: string
+                  summary:
+                    type: object
+                    properties:
+                      totalMarketValue:
+                        type: string
+                      totalCostBasis:
+                        type: string
+                      totalUnrealizedPnl:
+                        type: string
+                      totalRealizedPnl:
+                        type: string
+                      totalPnl:
+                        type: string
+                      totalPnlPercent:
+                        type: string
+                      positionCount:
+                        type: integer
+                    required:
+                      - totalMarketValue
+                      - totalCostBasis
+                      - totalUnrealizedPnl
+                      - totalRealizedPnl
+                      - totalPnl
+                      - totalPnlPercent
+                      - positionCount
+                  stats:
+                    nullable: true
+                    type: object
+                    properties:
+                      totalTrades:
+                        type: integer
+                      totalBuys:
+                        type: integer
+                      totalSells:
+                        type: integer
+                      totalVolumeUsd:
+                        type: string
+                      firstTradeAt:
+                        type:
+                          - string
+                          - "null"
+                      lastTradeAt:
+                        type:
+                          - string
+                          - "null"
+                    required:
+                      - totalTrades
+                      - totalBuys
+                      - totalSells
+                      - totalVolumeUsd
+                  positions:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            stockToken:
+                              type: string
+                            stockSymbol:
+                              type: string
+                            quantity:
+                              type: string
+                            avgCostBasis:
+                              type: string
+                            totalCost:
+                              type: string
+                            realizedPnl:
+                              type: string
+                            firstBuyAt:
+                              type:
+                                - string
+                                - "null"
+                            lastTradeAt:
+                              type:
+                                - string
+                                - "null"
+                          required:
+                            - stockToken
+                            - stockSymbol
+                            - quantity
+                            - avgCostBasis
+                            - totalCost
+                            - realizedPnl
+                        - type: object
+                          properties:
+                            currentPrice:
+                              type: string
+                            marketValue:
+                              type: string
+                            unrealizedPnl:
+                              type: string
+                            unrealizedPnlPercent:
+                              type: string
+                  recentOrders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type:
+                            - string
+                            - "null"
+                        orderType:
+                          type: string
+                          enum:
+                            - BUY
+                            - SELL
+                        stockToken:
+                          type: string
+                        stockSymbol:
+                          type: string
+                        stableToken:
+                          type: string
+                        stableSymbol:
+                          type: string
+                        stockAmount:
+                          type: string
+                        stableAmount:
+                          type: string
+                        priceAtExecution:
+                          type: string
+                      required:
+                        - txHash
+                        - blockNumber
+                        - orderType
+                        - stockToken
+                        - stockSymbol
+                        - stableToken
+                        - stableSymbol
+                        - stockAmount
+                        - stableAmount
+                        - priceAtExecution
+                required:
+                  - userAddress
+                  - timestamp
+                  - summary
+                  - positions
+                  - recentOrders
+  /api/portfolio/{address}/positions:
+    get:
+      summary: User positions
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: all
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  count:
+                    type: integer
+                  positions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stockToken:
+                          type: string
+                        stockSymbol:
+                          type: string
+                        quantity:
+                          type: string
+                        avgCostBasis:
+                          type: string
+                        totalCost:
+                          type: string
+                        realizedPnl:
+                          type: string
+                        firstBuyAt:
+                          type:
+                            - string
+                            - "null"
+                        lastTradeAt:
+                          type:
+                            - string
+                            - "null"
+                      required:
+                        - stockToken
+                        - stockSymbol
+                        - quantity
+                        - avgCostBasis
+                        - totalCost
+                        - realizedPnl
+                required:
+                  - userAddress
+                  - count
+                  - positions
+  /api/portfolio/{address}/positions/{stockToken}:
+    get:
+      summary: Position for a stock
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stockToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Position
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  position:
+                    type: object
+                    properties:
+                      stockToken:
+                        type: string
+                      stockSymbol:
+                        type: string
+                      quantity:
+                        type: string
+                      avgCostBasis:
+                        type: string
+                      totalCost:
+                        type: string
+                      realizedPnl:
+                        type: string
+                      firstBuyAt:
+                        type:
+                          - string
+                          - "null"
+                      lastTradeAt:
+                        type:
+                          - string
+                          - "null"
+                    required:
+                      - stockToken
+                      - stockSymbol
+                      - quantity
+                      - avgCostBasis
+                      - totalCost
+                      - realizedPnl
+                required:
+                  - userAddress
+                  - position
+  /api/portfolio/{address}/orders:
+    get:
+      summary: User orders
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type:
+                            - string
+                            - "null"
+                        orderType:
+                          type: string
+                          enum:
+                            - BUY
+                            - SELL
+                        stockToken:
+                          type: string
+                        stockSymbol:
+                          type: string
+                        stableToken:
+                          type: string
+                        stableSymbol:
+                          type: string
+                        stockAmount:
+                          type: string
+                        stableAmount:
+                          type: string
+                        priceAtExecution:
+                          type: string
+                      required:
+                        - txHash
+                        - blockNumber
+                        - orderType
+                        - stockToken
+                        - stockSymbol
+                        - stableToken
+                        - stableSymbol
+                        - stockAmount
+                        - stableAmount
+                        - priceAtExecution
+                required:
+                  - userAddress
+                  - total
+                  - limit
+                  - offset
+                  - orders
+  /api/portfolio/{address}/pnl:
+    get:
+      summary: User PnL
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prices
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PnL breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  timestamp:
+                    type: string
+                  summary:
+                    type: object
+                    properties:
+                      totalRealizedPnl:
+                        type: string
+                      totalUnrealizedPnl:
+                        type: string
+                      totalPnl:
+                        type: string
+                    required:
+                      - totalRealizedPnl
+                      - totalUnrealizedPnl
+                      - totalPnl
+                  byStock:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stockSymbol:
+                          type: string
+                        stockToken:
+                          type: string
+                        quantity:
+                          type: string
+                        avgCostBasis:
+                          type: string
+                        realizedPnl:
+                          type: string
+                        unrealizedPnl:
+                          type: string
+                        totalPnl:
+                          type: string
+                      required:
+                        - stockSymbol
+                        - stockToken
+                        - quantity
+                        - avgCostBasis
+                        - realizedPnl
+                        - unrealizedPnl
+                        - totalPnl
+                  stats:
+                    type:
+                      - object
+                      - "null"
+                    properties:
+                      totalTrades:
+                        type: integer
+                      totalVolumeUsd:
+                        type: string
+                    required:
+                      - totalTrades
+                      - totalVolumeUsd
+                required:
+                  - userAddress
+                  - timestamp
+                  - summary
+                  - byStock
+                  - stats
+  /api/portfolio/{address}/performance:
+    get:
+      summary: User performance metrics
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prices
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Performance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  hasData:
+                    type: boolean
+                  timestamp:
+                    type: string
+                    nullable: true
+                  metrics:
+                    type:
+                      - object
+                      - "null"
+                    properties:
+                      winRate:
+                        type: string
+                      totalWins:
+                        type: integer
+                      totalLosses:
+                        type: integer
+                      totalTrades:
+                        type: integer
+                      avgTradeSize:
+                        type: string
+                      avgHoldingDays:
+                        type: string
+                      totalVolume:
+                        type: string
+                      portfolioValue:
+                        type: string
+                      portfolioCost:
+                        type: string
+                      portfolioReturn:
+                        type: string
+                      totalRealizedPnl:
+                        type: string
+                    required:
+                      - winRate
+                      - totalWins
+                      - totalLosses
+                      - totalTrades
+                      - avgTradeSize
+                      - avgHoldingDays
+                      - totalVolume
+                      - portfolioValue
+                      - portfolioCost
+                      - portfolioReturn
+                      - totalRealizedPnl
+                  tradingHistory:
+                    type:
+                      - object
+                      - "null"
+                    properties:
+                      firstTrade:
+                        type:
+                          - string
+                          - "null"
+                      lastTrade:
+                        type:
+                          - string
+                          - "null"
+                      totalBuys:
+                        type: integer
+                      totalSells:
+                        type: integer
+                    required:
+                      - firstTrade
+                      - lastTrade
+                      - totalBuys
+                      - totalSells
+                required:
+                  - userAddress
+                  - hasData
+  /api/portfolio/{address}/balances:
+    get:
+      summary: Live token balances
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Balances
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  timestamp:
+                    type: string
+                  balances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        token:
+                          type: string
+                        symbol:
+                          type: string
+                        name:
+                          type: string
+                        balance:
+                          type: string
+                        decimals:
+                          type: integer
+                      required:
+                        - token
+                        - symbol
+                        - name
+                        - balance
+                        - decimals
+                required:
+                  - userAddress
+                  - timestamp
+                  - balances
+  /api/portfolio/{address}/reconcile:
+    get:
+      summary: Reconcile positions with chain
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reconcile result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  positionsChecked:
+                    type: integer
+                  liveBalancesFound:
+                    type: integer
+                  discrepancies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stockToken:
+                          type: string
+                        stockSymbol:
+                          type: string
+                        dbQuantity:
+                          type: string
+                        liveQuantity:
+                          type: string
+                        difference:
+                          type: string
+                      required:
+                        - stockToken
+                        - stockSymbol
+                        - dbQuantity
+                        - liveQuantity
+                        - difference
+                  inSync:
+                    type: boolean
+                required:
+                  - userAddress
+                  - positionsChecked
+                  - liveBalancesFound
+                  - discrepancies
+                  - inSync
+  /api/portfolio/{address}/backfill:
+    post:
+      summary: Backfill user historical data
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Backfill result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userAddress:
+                    type: string
+                  ordersProcessed:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - userAddress
+                  - ordersProcessed
+                  - message
+  /api/orders/recent:
+    get:
+      summary: Recent orders
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recent orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type:
+                            - string
+                            - "null"
+                        orderType:
+                          type: string
+                          enum:
+                            - BUY
+                            - SELL
+                        stockToken:
+                          type: string
+                        stockSymbol:
+                          type: string
+                        stableToken:
+                          type: string
+                        stableSymbol:
+                          type: string
+                        stockAmount:
+                          type: string
+                        stableAmount:
+                          type: string
+                        priceAtExecution:
+                          type: string
+                      required:
+                        - txHash
+                        - blockNumber
+                        - orderType
+                        - stockToken
+                        - stockSymbol
+                        - stableToken
+                        - stableSymbol
+                        - stockAmount
+                        - stableAmount
+                        - priceAtExecution
+                required:
+                  - count
+                  - orders
+  /api/orders/stock/{stockToken}:
+    get:
+      summary: Orders for a stock
+      parameters:
+        - name: stockToken
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Stock orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stockToken:
+                    type: string
+                  count:
+                    type: integer
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type:
+                            - string
+                            - "null"
+                        orderType:
+                          type: string
+                          enum:
+                            - BUY
+                            - SELL
+                        stockToken:
+                          type: string
+                        stockSymbol:
+                          type: string
+                        stableToken:
+                          type: string
+                        stableSymbol:
+                          type: string
+                        stockAmount:
+                          type: string
+                        stableAmount:
+                          type: string
+                        priceAtExecution:
+                          type: string
+                      required:
+                        - txHash
+                        - blockNumber
+                        - orderType
+                        - stockToken
+                        - stockSymbol
+                        - stableToken
+                        - stableSymbol
+                        - stockAmount
+                        - stableAmount
+                        - priceAtExecution
+                required:
+                  - stockToken
+                  - count
+                  - orders
+  /api/indexer/status:
+    get:
+      summary: Indexer status
+      responses:
+        "200":
+          description: Indexer status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lastSyncedBlock:
+                    type: integer
+                  lastSyncAt:
+                    type:
+                      - string
+                      - "null"
+                  totalOrdersIndexed:
+                    type: integer
+                required:
+                  - lastSyncedBlock
+                  - lastSyncAt
+                  - totalOrdersIndexed
+  /api/indexer/sync:
+    post:
+      summary: Trigger indexer sync
+      responses:
+        "200":
+          description: Sync result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  processed:
+                    type: integer
+                  newBlock:
+                    type: integer
+                required:
+                  - message
+                  - processed
+                  - newBlock
+  /api/leaderboard:
+    get:
+      summary: Trader leaderboard
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  traders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userAddress:
+                          type: string
+                        totalTrades:
+                          type: integer
+                        totalVolume:
+                          type: string
+                        totalRealizedPnl:
+                          type: string
+                        firstTrade:
+                          type:
+                            - string
+                            - "null"
+                        lastTrade:
+                          type:
+                            - string
+                            - "null"
+                      required:
+                        - userAddress
+                        - totalTrades
+                        - totalVolume
+                        - totalRealizedPnl
+                        - firstTrade
+                        - lastTrade
+                required:
+                  - count
+                  - traders
+  /api/holdings/summary:
+    get:
+      summary: Holdings summary
+      responses:
+        "200":
+          description: Holdings summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stocks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stock_token:
+                          type: string
+                        stock_symbol:
+                          type: string
+                        holder_count:
+                          type: integer
+                        total_quantity:
+                          type: number
+                        total_invested:
+                          type: number
+                      required:
+                        - stock_token
+                        - stock_symbol
+                        - holder_count
+                        - total_quantity
+                        - total_invested
+                required:
+                  - stocks
+  /api/vault/config:
+    get:
+      summary: Vault configuration
+      responses:
+        "200":
+          description: Vault config
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  network:
+                    type: string
+                  chainId:
+                    type: integer
+                  contracts:
+                    type: object
+                    properties:
+                      stockVault:
+                        type: string
+                      priceOracle:
+                        type: string
+                    required:
+                      - stockVault
+                      - priceOracle
+                  stables:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  stocks:
+                    type: object
+                    additionalProperties:
+                      type: string
+                required:
+                  - network
+                  - chainId
+                  - contracts
+                  - stables
+                  - stocks
+  /api/vault/stocks:
+    get:
+      summary: Tokenized stocks and stables
+      responses:
+        "200":
+          description: Vault stocks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stockCount:
+                    type: integer
+                  stocks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        address:
+                          type: string
+                      required:
+                        - symbol
+                        - address
+                  stables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        address:
+                          type: string
+                      required:
+                        - symbol
+                        - address
+                required:
+                  - stockCount
+                  - stocks
+                  - stables
+  /ws:
+    get:
+      summary: WebSocket upgrade for real-time price updates
+      description: Connect with ws or wss using the same host to receive
+        WebSocketMessage payloads.
+      responses:
+        "101":
+          description: Switching Protocols
+components:
   schemas:
-    User:
-      description: A user
+    HealthResponse:
       type: object
-      xml:
-        name: user
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+        network:
+          type: string
+        lastUpdateTs:
+          type:
+            - number
+            - "null"
+        trackedBases:
+          type: array
+          items:
+            type: string
+        feedCount:
+          type: integer
+        apis:
+          type: object
+          properties:
+            oracle:
+              type: array
+              items:
+                type: string
+            stocks:
+              type: array
+              items:
+                type: string
+            portfolio:
+              type: array
+              items:
+                type: string
+          required:
+            - oracle
+            - stocks
+            - portfolio
+      required:
+        - status
+        - network
+        - trackedBases
+        - feedCount
+        - apis
+    PriceData:
+      type: object
+      properties:
+        symbol:
+          type: string
+        price:
+          type: string
+        priceUsd:
+          type: number
+        oraclePrice:
+          type: string
+        timestamp:
+          type: number
+        session:
+          type: string
+        tokenAddress:
+          type: string
+      required:
+        - symbol
+        - price
+        - priceUsd
+        - oraclePrice
+        - timestamp
+        - session
+        - tokenAddress
+    PricesResponse:
+      type: object
+      properties:
+        timestamp:
+          type:
+            - string
+            - "null"
+        prices:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              symbol:
+                type: string
+              price:
+                type: string
+              priceUsd:
+                type: number
+              oraclePrice:
+                type: string
+              timestamp:
+                type: number
+              session:
+                type: string
+              tokenAddress:
+                type: string
+            required:
+              - symbol
+              - price
+              - priceUsd
+              - oraclePrice
+              - timestamp
+              - session
+              - tokenAddress
+      required:
+        - prices
+    SinglePriceResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        price:
+          type: string
+        priceUsd:
+          type: number
+        oraclePrice:
+          type: string
+        timestamp:
+          type: number
+        session:
+          type: string
+        tokenAddress:
+          type: string
+      required:
+        - symbol
+        - price
+        - priceUsd
+        - oraclePrice
+        - timestamp
+        - session
+        - tokenAddress
+    StockFundamentals:
+      type: object
+      properties:
+        open:
+          type:
+            - string
+            - "null"
+        high:
+          type:
+            - string
+            - "null"
+        low:
+          type:
+            - string
+            - "null"
+        volume:
+          type:
+            - string
+            - "null"
+        average_volume:
+          type:
+            - string
+            - "null"
+        average_volume_2_weeks:
+          type:
+            - string
+            - "null"
+        high_52_weeks:
+          type:
+            - string
+            - "null"
+        low_52_weeks:
+          type:
+            - string
+            - "null"
+        market_cap:
+          type:
+            - string
+            - "null"
+        dividend_yield:
+          type:
+            - string
+            - "null"
+        pe_ratio:
+          type:
+            - string
+            - "null"
+        pb_ratio:
+          type:
+            - string
+            - "null"
+        description:
+          type:
+            - string
+            - "null"
+        instrument:
+          type: string
+        ceo:
+          type:
+            - string
+            - "null"
+        headquarters_city:
+          type:
+            - string
+            - "null"
+        headquarters_state:
+          type:
+            - string
+            - "null"
+        sector:
+          type:
+            - string
+            - "null"
+        industry:
+          type:
+            - string
+            - "null"
+        num_employees:
+          type:
+            - integer
+            - "null"
+        year_founded:
+          type:
+            - integer
+            - "null"
+      required:
+        - instrument
+    StockQuote:
+      type: object
+      properties:
+        ask_price:
+          type:
+            - string
+            - "null"
+        ask_size:
+          type:
+            - integer
+            - "null"
+        bid_price:
+          type:
+            - string
+            - "null"
+        bid_size:
+          type:
+            - integer
+            - "null"
+        last_trade_price:
+          type:
+            - string
+            - "null"
+        last_extended_hours_trade_price:
+          type:
+            - string
+            - "null"
+        previous_close:
+          type:
+            - string
+            - "null"
+        adjusted_previous_close:
+          type:
+            - string
+            - "null"
+        previous_close_date:
+          type:
+            - string
+            - "null"
+        symbol:
+          type: string
+        trading_halted:
+          type: boolean
+        has_traded:
+          type: boolean
+        last_trade_price_source:
+          type: string
+        updated_at:
+          type: string
+        instrument:
+          type: string
+        instrument_id:
+          type: string
+      required:
+        - symbol
+        - trading_halted
+        - has_traded
+        - last_trade_price_source
+        - updated_at
+        - instrument
+        - instrument_id
+    HistoricalDataPoint:
+      type: object
+      properties:
+        begins_at:
+          type: string
+        open_price:
+          type: string
+        close_price:
+          type: string
+        high_price:
+          type: string
+        low_price:
+          type: string
+        volume:
+          type: integer
+        session:
+          type: string
+        interpolated:
+          type: boolean
+      required:
+        - begins_at
+        - open_price
+        - close_price
+        - high_price
+        - low_price
+        - volume
+        - session
+        - interpolated
+    StockHistoricals:
+      type: object
+      properties:
+        quote:
+          type: string
+        symbol:
+          type: string
+        interval:
+          type: string
+        span:
+          type: string
+        bounds:
+          type: string
+        previous_close_price:
+          type:
+            - string
+            - "null"
+        previous_close_time:
+          type:
+            - string
+            - "null"
+        open_price:
+          type:
+            - string
+            - "null"
+        open_time:
+          type:
+            - string
+            - "null"
+        instrument:
+          type: string
+        historicals:
+          type: array
+          items:
+            type: object
+            properties:
+              begins_at:
+                type: string
+              open_price:
+                type: string
+              close_price:
+                type: string
+              high_price:
+                type: string
+              low_price:
+                type: string
+              volume:
+                type: integer
+              session:
+                type: string
+              interpolated:
+                type: boolean
+            required:
+              - begins_at
+              - open_price
+              - close_price
+              - high_price
+              - low_price
+              - volume
+              - session
+              - interpolated
+      required:
+        - quote
+        - symbol
+        - interval
+        - span
+        - bounds
+        - instrument
+        - historicals
+    StockInstrument:
+      type: object
       properties:
         id:
-          type: integer
-          format: int64
-          readOnly: true
-          examples:
-            - 1
+          type: string
+        url:
+          type: string
+        quote:
+          type: string
+        fundamentals:
+          type: string
+        splits:
+          type: string
+        state:
+          type: string
+        market:
+          type: string
+        simple_name:
+          type:
+            - string
+            - "null"
         name:
           type: string
-          examples:
-            - Marc
-    Credentials:
-      description: Credentials to authenticate a user
-      type: object
+        tradeable:
+          type: boolean
+        tradability:
+          type: string
+        symbol:
+          type: string
+        bloomberg_unique:
+          type: string
+        margin_initial_ratio:
+          type: string
+        maintenance_ratio:
+          type: string
+        country:
+          type: string
+        day_trade_ratio:
+          type: string
+        list_date:
+          type:
+            - string
+            - "null"
+        min_tick_size:
+          type:
+            - string
+            - "null"
+        type:
+          type: string
+        tradeable_chain_id:
+          type:
+            - string
+            - "null"
+        rhs_tradability:
+          type: string
+        fractional_tradability:
+          type: string
+        default_collar_fraction:
+          type: string
       required:
-        - email
-        - password
+        - id
+        - url
+        - quote
+        - fundamentals
+        - splits
+        - state
+        - market
+        - name
+        - tradeable
+        - tradability
+        - symbol
+        - bloomberg_unique
+        - margin_initial_ratio
+        - maintenance_ratio
+        - country
+        - day_trade_ratio
+        - type
+        - rhs_tradability
+        - fractional_tradability
+        - default_collar_fraction
+    InstrumentSplit:
+      type: object
       properties:
-        email:
+        url:
           type: string
-          format: email
-          examples:
-            - marc@scalar.com
-        password:
+        instrument:
           type: string
-          writeOnly: true
-          examples:
-            - i-love-scalar
-            - i-love-OSS
-            - i-love-code
-    Token:
-      description: A token to authenticate a user
+        execution_date:
+          type: string
+        divisor:
+          type: string
+        multiplier:
+          type: string
+      required:
+        - url
+        - instrument
+        - execution_date
+        - divisor
+        - multiplier
+    Market:
+      type: object
+      properties:
+        url:
+          type: string
+        todays_hours:
+          type: string
+        mic:
+          type: string
+        operating_mic:
+          type: string
+        acronym:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        timezone:
+          type: string
+        website:
+          type: string
+      required:
+        - url
+        - todays_hours
+        - mic
+        - operating_mic
+        - acronym
+        - name
+        - city
+        - country
+        - timezone
+        - website
+    MarketHours:
+      type: object
+      properties:
+        date:
+          type: string
+        is_open:
+          type: boolean
+        opens_at:
+          type:
+            - string
+            - "null"
+        closes_at:
+          type:
+            - string
+            - "null"
+        extended_opens_at:
+          type:
+            - string
+            - "null"
+        extended_closes_at:
+          type:
+            - string
+            - "null"
+        previous_open_hours:
+          type:
+            - string
+            - "null"
+        next_open_hours:
+          type:
+            - string
+            - "null"
+      required:
+        - date
+        - is_open
+        - opens_at
+        - closes_at
+        - extended_opens_at
+        - extended_closes_at
+        - previous_open_hours
+        - next_open_hours
+    PopularStock:
+      type: object
+      properties:
+        symbol:
+          type: string
+        instrument:
+          type: object
+          properties:
+            id:
+              type: string
+            url:
+              type: string
+            quote:
+              type: string
+            fundamentals:
+              type: string
+            splits:
+              type: string
+            state:
+              type: string
+            market:
+              type: string
+            simple_name:
+              type:
+                - string
+                - "null"
+            name:
+              type: string
+            tradeable:
+              type: boolean
+            tradability:
+              type: string
+            symbol:
+              type: string
+            bloomberg_unique:
+              type: string
+            margin_initial_ratio:
+              type: string
+            maintenance_ratio:
+              type: string
+            country:
+              type: string
+            day_trade_ratio:
+              type: string
+            list_date:
+              type:
+                - string
+                - "null"
+            min_tick_size:
+              type:
+                - string
+                - "null"
+            type:
+              type: string
+            tradeable_chain_id:
+              type:
+                - string
+                - "null"
+            rhs_tradability:
+              type: string
+            fractional_tradability:
+              type: string
+            default_collar_fraction:
+              type: string
+          required:
+            - id
+            - url
+            - quote
+            - fundamentals
+            - splits
+            - state
+            - market
+            - name
+            - tradeable
+            - tradability
+            - symbol
+            - bloomberg_unique
+            - margin_initial_ratio
+            - maintenance_ratio
+            - country
+            - day_trade_ratio
+            - type
+            - rhs_tradability
+            - fractional_tradability
+            - default_collar_fraction
+        quote:
+          nullable: true
+          type: object
+          properties:
+            ask_price:
+              type:
+                - string
+                - "null"
+            ask_size:
+              type:
+                - integer
+                - "null"
+            bid_price:
+              type:
+                - string
+                - "null"
+            bid_size:
+              type:
+                - integer
+                - "null"
+            last_trade_price:
+              type:
+                - string
+                - "null"
+            last_extended_hours_trade_price:
+              type:
+                - string
+                - "null"
+            previous_close:
+              type:
+                - string
+                - "null"
+            adjusted_previous_close:
+              type:
+                - string
+                - "null"
+            previous_close_date:
+              type:
+                - string
+                - "null"
+            symbol:
+              type: string
+            trading_halted:
+              type: boolean
+            has_traded:
+              type: boolean
+            last_trade_price_source:
+              type: string
+            updated_at:
+              type: string
+            instrument:
+              type: string
+            instrument_id:
+              type: string
+          required:
+            - symbol
+            - trading_halted
+            - has_traded
+            - last_trade_price_source
+            - updated_at
+            - instrument
+            - instrument_id
+        fundamentals:
+          nullable: true
+          type: object
+          properties:
+            open:
+              type:
+                - string
+                - "null"
+            high:
+              type:
+                - string
+                - "null"
+            low:
+              type:
+                - string
+                - "null"
+            volume:
+              type:
+                - string
+                - "null"
+            average_volume:
+              type:
+                - string
+                - "null"
+            average_volume_2_weeks:
+              type:
+                - string
+                - "null"
+            high_52_weeks:
+              type:
+                - string
+                - "null"
+            low_52_weeks:
+              type:
+                - string
+                - "null"
+            market_cap:
+              type:
+                - string
+                - "null"
+            dividend_yield:
+              type:
+                - string
+                - "null"
+            pe_ratio:
+              type:
+                - string
+                - "null"
+            pb_ratio:
+              type:
+                - string
+                - "null"
+            description:
+              type:
+                - string
+                - "null"
+            instrument:
+              type: string
+            ceo:
+              type:
+                - string
+                - "null"
+            headquarters_city:
+              type:
+                - string
+                - "null"
+            headquarters_state:
+              type:
+                - string
+                - "null"
+            sector:
+              type:
+                - string
+                - "null"
+            industry:
+              type:
+                - string
+                - "null"
+            num_employees:
+              type:
+                - integer
+                - "null"
+            year_founded:
+              type:
+                - integer
+                - "null"
+          required:
+            - instrument
+      required:
+        - symbol
+        - instrument
+    ComprehensiveStockData:
+      type: object
+      properties:
+        symbol:
+          type: string
+        quote:
+          nullable: true
+          type: object
+          properties:
+            ask_price:
+              type:
+                - string
+                - "null"
+            ask_size:
+              type:
+                - integer
+                - "null"
+            bid_price:
+              type:
+                - string
+                - "null"
+            bid_size:
+              type:
+                - integer
+                - "null"
+            last_trade_price:
+              type:
+                - string
+                - "null"
+            last_extended_hours_trade_price:
+              type:
+                - string
+                - "null"
+            previous_close:
+              type:
+                - string
+                - "null"
+            adjusted_previous_close:
+              type:
+                - string
+                - "null"
+            previous_close_date:
+              type:
+                - string
+                - "null"
+            symbol:
+              type: string
+            trading_halted:
+              type: boolean
+            has_traded:
+              type: boolean
+            last_trade_price_source:
+              type: string
+            updated_at:
+              type: string
+            instrument:
+              type: string
+            instrument_id:
+              type: string
+          required:
+            - symbol
+            - trading_halted
+            - has_traded
+            - last_trade_price_source
+            - updated_at
+            - instrument
+            - instrument_id
+        fundamentals:
+          nullable: true
+          type: object
+          properties:
+            open:
+              type:
+                - string
+                - "null"
+            high:
+              type:
+                - string
+                - "null"
+            low:
+              type:
+                - string
+                - "null"
+            volume:
+              type:
+                - string
+                - "null"
+            average_volume:
+              type:
+                - string
+                - "null"
+            average_volume_2_weeks:
+              type:
+                - string
+                - "null"
+            high_52_weeks:
+              type:
+                - string
+                - "null"
+            low_52_weeks:
+              type:
+                - string
+                - "null"
+            market_cap:
+              type:
+                - string
+                - "null"
+            dividend_yield:
+              type:
+                - string
+                - "null"
+            pe_ratio:
+              type:
+                - string
+                - "null"
+            pb_ratio:
+              type:
+                - string
+                - "null"
+            description:
+              type:
+                - string
+                - "null"
+            instrument:
+              type: string
+            ceo:
+              type:
+                - string
+                - "null"
+            headquarters_city:
+              type:
+                - string
+                - "null"
+            headquarters_state:
+              type:
+                - string
+                - "null"
+            sector:
+              type:
+                - string
+                - "null"
+            industry:
+              type:
+                - string
+                - "null"
+            num_employees:
+              type:
+                - integer
+                - "null"
+            year_founded:
+              type:
+                - integer
+                - "null"
+          required:
+            - instrument
+        instrument:
+          nullable: true
+          type: object
+          properties:
+            id:
+              type: string
+            url:
+              type: string
+            quote:
+              type: string
+            fundamentals:
+              type: string
+            splits:
+              type: string
+            state:
+              type: string
+            market:
+              type: string
+            simple_name:
+              type:
+                - string
+                - "null"
+            name:
+              type: string
+            tradeable:
+              type: boolean
+            tradability:
+              type: string
+            symbol:
+              type: string
+            bloomberg_unique:
+              type: string
+            margin_initial_ratio:
+              type: string
+            maintenance_ratio:
+              type: string
+            country:
+              type: string
+            day_trade_ratio:
+              type: string
+            list_date:
+              type:
+                - string
+                - "null"
+            min_tick_size:
+              type:
+                - string
+                - "null"
+            type:
+              type: string
+            tradeable_chain_id:
+              type:
+                - string
+                - "null"
+            rhs_tradability:
+              type: string
+            fractional_tradability:
+              type: string
+            default_collar_fraction:
+              type: string
+          required:
+            - id
+            - url
+            - quote
+            - fundamentals
+            - splits
+            - state
+            - market
+            - name
+            - tradeable
+            - tradability
+            - symbol
+            - bloomberg_unique
+            - margin_initial_ratio
+            - maintenance_ratio
+            - country
+            - day_trade_ratio
+            - type
+            - rhs_tradability
+            - fractional_tradability
+            - default_collar_fraction
+      required:
+        - symbol
+    SearchResult:
+      type: object
+      properties:
+        instruments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              url:
+                type: string
+              quote:
+                type: string
+              fundamentals:
+                type: string
+              splits:
+                type: string
+              state:
+                type: string
+              market:
+                type: string
+              simple_name:
+                type:
+                  - string
+                  - "null"
+              name:
+                type: string
+              tradeable:
+                type: boolean
+              tradability:
+                type: string
+              symbol:
+                type: string
+              bloomberg_unique:
+                type: string
+              margin_initial_ratio:
+                type: string
+              maintenance_ratio:
+                type: string
+              country:
+                type: string
+              day_trade_ratio:
+                type: string
+              list_date:
+                type:
+                  - string
+                  - "null"
+              min_tick_size:
+                type:
+                  - string
+                  - "null"
+              type:
+                type: string
+              tradeable_chain_id:
+                type:
+                  - string
+                  - "null"
+              rhs_tradability:
+                type: string
+              fractional_tradability:
+                type: string
+              default_collar_fraction:
+                type: string
+            required:
+              - id
+              - url
+              - quote
+              - fundamentals
+              - splits
+              - state
+              - market
+              - name
+              - tradeable
+              - tradability
+              - symbol
+              - bloomberg_unique
+              - margin_initial_ratio
+              - maintenance_ratio
+              - country
+              - day_trade_ratio
+              - type
+              - rhs_tradability
+              - fractional_tradability
+              - default_collar_fraction
+      required:
+        - instruments
+    Position:
+      type: object
+      properties:
+        stockToken:
+          type: string
+        stockSymbol:
+          type: string
+        quantity:
+          type: string
+        avgCostBasis:
+          type: string
+        totalCost:
+          type: string
+        realizedPnl:
+          type: string
+        firstBuyAt:
+          type:
+            - string
+            - "null"
+        lastTradeAt:
+          type:
+            - string
+            - "null"
+      required:
+        - stockToken
+        - stockSymbol
+        - quantity
+        - avgCostBasis
+        - totalCost
+        - realizedPnl
+    EnrichedPosition:
+      allOf:
+        - type: object
+          properties:
+            stockToken:
+              type: string
+            stockSymbol:
+              type: string
+            quantity:
+              type: string
+            avgCostBasis:
+              type: string
+            totalCost:
+              type: string
+            realizedPnl:
+              type: string
+            firstBuyAt:
+              type:
+                - string
+                - "null"
+            lastTradeAt:
+              type:
+                - string
+                - "null"
+          required:
+            - stockToken
+            - stockSymbol
+            - quantity
+            - avgCostBasis
+            - totalCost
+            - realizedPnl
+        - type: object
+          properties:
+            currentPrice:
+              type: string
+            marketValue:
+              type: string
+            unrealizedPnl:
+              type: string
+            unrealizedPnlPercent:
+              type: string
+    Order:
+      type: object
+      properties:
+        txHash:
+          type: string
+        blockNumber:
+          type: integer
+        timestamp:
+          type:
+            - string
+            - "null"
+        orderType:
+          type: string
+          enum:
+            - BUY
+            - SELL
+        stockToken:
+          type: string
+        stockSymbol:
+          type: string
+        stableToken:
+          type: string
+        stableSymbol:
+          type: string
+        stockAmount:
+          type: string
+        stableAmount:
+          type: string
+        priceAtExecution:
+          type: string
+      required:
+        - txHash
+        - blockNumber
+        - orderType
+        - stockToken
+        - stockSymbol
+        - stableToken
+        - stableSymbol
+        - stockAmount
+        - stableAmount
+        - priceAtExecution
+    UserStats:
+      type: object
+      properties:
+        totalTrades:
+          type: integer
+        totalBuys:
+          type: integer
+        totalSells:
+          type: integer
+        totalVolumeUsd:
+          type: string
+        firstTradeAt:
+          type:
+            - string
+            - "null"
+        lastTradeAt:
+          type:
+            - string
+            - "null"
+      required:
+        - totalTrades
+        - totalBuys
+        - totalSells
+        - totalVolumeUsd
+    PortfolioSummary:
+      type: object
+      properties:
+        totalMarketValue:
+          type: string
+        totalCostBasis:
+          type: string
+        totalUnrealizedPnl:
+          type: string
+        totalRealizedPnl:
+          type: string
+        totalPnl:
+          type: string
+        totalPnlPercent:
+          type: string
+        positionCount:
+          type: integer
+      required:
+        - totalMarketValue
+        - totalCostBasis
+        - totalUnrealizedPnl
+        - totalRealizedPnl
+        - totalPnl
+        - totalPnlPercent
+        - positionCount
+    PortfolioOverview:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        timestamp:
+          type: string
+        summary:
+          type: object
+          properties:
+            totalMarketValue:
+              type: string
+            totalCostBasis:
+              type: string
+            totalUnrealizedPnl:
+              type: string
+            totalRealizedPnl:
+              type: string
+            totalPnl:
+              type: string
+            totalPnlPercent:
+              type: string
+            positionCount:
+              type: integer
+          required:
+            - totalMarketValue
+            - totalCostBasis
+            - totalUnrealizedPnl
+            - totalRealizedPnl
+            - totalPnl
+            - totalPnlPercent
+            - positionCount
+        stats:
+          nullable: true
+          type: object
+          properties:
+            totalTrades:
+              type: integer
+            totalBuys:
+              type: integer
+            totalSells:
+              type: integer
+            totalVolumeUsd:
+              type: string
+            firstTradeAt:
+              type:
+                - string
+                - "null"
+            lastTradeAt:
+              type:
+                - string
+                - "null"
+          required:
+            - totalTrades
+            - totalBuys
+            - totalSells
+            - totalVolumeUsd
+        positions:
+          type: array
+          items:
+            allOf:
+              - type: object
+                properties:
+                  stockToken:
+                    type: string
+                  stockSymbol:
+                    type: string
+                  quantity:
+                    type: string
+                  avgCostBasis:
+                    type: string
+                  totalCost:
+                    type: string
+                  realizedPnl:
+                    type: string
+                  firstBuyAt:
+                    type:
+                      - string
+                      - "null"
+                  lastTradeAt:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - stockToken
+                  - stockSymbol
+                  - quantity
+                  - avgCostBasis
+                  - totalCost
+                  - realizedPnl
+              - type: object
+                properties:
+                  currentPrice:
+                    type: string
+                  marketValue:
+                    type: string
+                  unrealizedPnl:
+                    type: string
+                  unrealizedPnlPercent:
+                    type: string
+        recentOrders:
+          type: array
+          items:
+            type: object
+            properties:
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type:
+                  - string
+                  - "null"
+              orderType:
+                type: string
+                enum:
+                  - BUY
+                  - SELL
+              stockToken:
+                type: string
+              stockSymbol:
+                type: string
+              stableToken:
+                type: string
+              stableSymbol:
+                type: string
+              stockAmount:
+                type: string
+              stableAmount:
+                type: string
+              priceAtExecution:
+                type: string
+            required:
+              - txHash
+              - blockNumber
+              - orderType
+              - stockToken
+              - stockSymbol
+              - stableToken
+              - stableSymbol
+              - stockAmount
+              - stableAmount
+              - priceAtExecution
+      required:
+        - userAddress
+        - timestamp
+        - summary
+        - positions
+        - recentOrders
+    PositionsResponse:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        count:
+          type: integer
+        positions:
+          type: array
+          items:
+            type: object
+            properties:
+              stockToken:
+                type: string
+              stockSymbol:
+                type: string
+              quantity:
+                type: string
+              avgCostBasis:
+                type: string
+              totalCost:
+                type: string
+              realizedPnl:
+                type: string
+              firstBuyAt:
+                type:
+                  - string
+                  - "null"
+              lastTradeAt:
+                type:
+                  - string
+                  - "null"
+            required:
+              - stockToken
+              - stockSymbol
+              - quantity
+              - avgCostBasis
+              - totalCost
+              - realizedPnl
+      required:
+        - userAddress
+        - count
+        - positions
+    OrdersResponse:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type:
+                  - string
+                  - "null"
+              orderType:
+                type: string
+                enum:
+                  - BUY
+                  - SELL
+              stockToken:
+                type: string
+              stockSymbol:
+                type: string
+              stableToken:
+                type: string
+              stableSymbol:
+                type: string
+              stockAmount:
+                type: string
+              stableAmount:
+                type: string
+              priceAtExecution:
+                type: string
+            required:
+              - txHash
+              - blockNumber
+              - orderType
+              - stockToken
+              - stockSymbol
+              - stableToken
+              - stableSymbol
+              - stockAmount
+              - stableAmount
+              - priceAtExecution
+      required:
+        - userAddress
+        - total
+        - limit
+        - offset
+        - orders
+    PnlByStock:
+      type: object
+      properties:
+        stockSymbol:
+          type: string
+        stockToken:
+          type: string
+        quantity:
+          type: string
+        avgCostBasis:
+          type: string
+        realizedPnl:
+          type: string
+        unrealizedPnl:
+          type: string
+        totalPnl:
+          type: string
+      required:
+        - stockSymbol
+        - stockToken
+        - quantity
+        - avgCostBasis
+        - realizedPnl
+        - unrealizedPnl
+        - totalPnl
+    PnlBreakdown:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        timestamp:
+          type: string
+        summary:
+          type: object
+          properties:
+            totalRealizedPnl:
+              type: string
+            totalUnrealizedPnl:
+              type: string
+            totalPnl:
+              type: string
+          required:
+            - totalRealizedPnl
+            - totalUnrealizedPnl
+            - totalPnl
+        byStock:
+          type: array
+          items:
+            type: object
+            properties:
+              stockSymbol:
+                type: string
+              stockToken:
+                type: string
+              quantity:
+                type: string
+              avgCostBasis:
+                type: string
+              realizedPnl:
+                type: string
+              unrealizedPnl:
+                type: string
+              totalPnl:
+                type: string
+            required:
+              - stockSymbol
+              - stockToken
+              - quantity
+              - avgCostBasis
+              - realizedPnl
+              - unrealizedPnl
+              - totalPnl
+        stats:
+          type:
+            - object
+            - "null"
+          properties:
+            totalTrades:
+              type: integer
+            totalVolumeUsd:
+              type: string
+          required:
+            - totalTrades
+            - totalVolumeUsd
+      required:
+        - userAddress
+        - timestamp
+        - summary
+        - byStock
+        - stats
+    PerformanceMetrics:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        hasData:
+          type: boolean
+        timestamp:
+          type: string
+          nullable: true
+        metrics:
+          type:
+            - object
+            - "null"
+          properties:
+            winRate:
+              type: string
+            totalWins:
+              type: integer
+            totalLosses:
+              type: integer
+            totalTrades:
+              type: integer
+            avgTradeSize:
+              type: string
+            avgHoldingDays:
+              type: string
+            totalVolume:
+              type: string
+            portfolioValue:
+              type: string
+            portfolioCost:
+              type: string
+            portfolioReturn:
+              type: string
+            totalRealizedPnl:
+              type: string
+          required:
+            - winRate
+            - totalWins
+            - totalLosses
+            - totalTrades
+            - avgTradeSize
+            - avgHoldingDays
+            - totalVolume
+            - portfolioValue
+            - portfolioCost
+            - portfolioReturn
+            - totalRealizedPnl
+        tradingHistory:
+          type:
+            - object
+            - "null"
+          properties:
+            firstTrade:
+              type:
+                - string
+                - "null"
+            lastTrade:
+              type:
+                - string
+                - "null"
+            totalBuys:
+              type: integer
+            totalSells:
+              type: integer
+          required:
+            - firstTrade
+            - lastTrade
+            - totalBuys
+            - totalSells
+      required:
+        - userAddress
+        - hasData
+    TokenBalance:
       type: object
       properties:
         token:
           type: string
-          examples:
-            - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-    CelestialBody:
-      oneOf:
-        - $ref: '#/components/schemas/Planet'
-        - $ref: '#/components/schemas/Satellite'
-      discriminator:
-        propertyName: type
-        mapping:
-          planet: '#/components/schemas/Planet'
-          satellite: '#/components/schemas/Satellite'
-      description: A celestial body which can be either a planet or a satellite
-    Planet:
-      description: A planet in the Scalar Galaxy
-      type: object
-      required:
-        - id
-        - name
-      additionalProperties: false
-      xml:
-        name: planet
-      properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-          examples:
-            - 1
-          x-variable: planetId
+        symbol:
+          type: string
         name:
           type: string
-          examples:
-            - Mars
-            - Jupiter
-            - HD 40307g
-        description:
-          type:
-            - string
-            - 'null'
-          examples:
-            - The red planet
-            - A gas giant with a great red spot
-        type:
+        balance:
           type: string
-          enum:
-            - terrestrial
-            - gas_giant
-            - ice_giant
-            - dwarf
-            - super_earth
-          x-enum-varnames:
-            - Terrestrial
-            - GasGiant
-            - IceGiant
-            - Dwarf
-            - SuperEarth
-          x-enum-descriptions:
-            terrestrial: Rocky planets with solid surfaces, like Earth and Mars
-            gas_giant: Large planets composed mainly of hydrogen and helium, like Jupiter and Saturn
-            ice_giant: Planets composed of water, ammonia, and methane ices, like Uranus and Neptune
-            dwarf: Small planetary bodies that don't meet full planet criteria, like Pluto
-            super_earth: Rocky planets larger than Earth but smaller than gas giants
-          examples:
-            - terrestrial
-        habitabilityIndex:
-          type: number
-          format: float
-          minimum: 0
-          maximum: 1
-          description: A score from 0 to 1 indicating potential habitability
-          examples:
-            - 0.68
-        physicalProperties:
-          type: object
-          additionalProperties:
-            x-additionalPropertiesName: measurement
-            type: number
-            format: float
-            description: Additional physical measurements for the planet
-          properties:
-            mass:
-              type: number
-              format: float
-              exclusiveMinimum: 0
-              description: Mass in Earth masses (must be greater than 0)
-              examples:
-                - 0.107
-            radius:
-              type: number
-              format: float
-              exclusiveMinimum: 0
-              description: Radius in Earth radii (must be greater than 0)
-              examples:
-                - 0.532
-            gravity:
-              type: number
-              format: float
-              description: Surface gravity in Earth g
-              examples:
-                - 0.378
-            temperature:
-              type: object
-              additionalProperties:
-                x-additionalPropertiesName: temperatureMetric
-                type: number
-                format: float
-                description: Additional temperature-related measurements in Kelvin
-              properties:
-                min:
-                  type: number
-                  format: float
-                  description: Minimum temperature in Kelvin
-                  examples:
-                    - 130
-                max:
-                  type: number
-                  format: float
-                  description: Maximum temperature in Kelvin
-                  examples:
-                    - 308
-                average:
-                  type: number
-                  format: float
-                  description: Average temperature in Kelvin
-                  examples:
-                    - 210
-        atmosphere:
+        decimals:
+          type: integer
+      required:
+        - token
+        - symbol
+        - name
+        - balance
+        - decimals
+    BalancesResponse:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        timestamp:
+          type: string
+        balances:
           type: array
-          description: Atmospheric composition
           items:
             type: object
-            additionalProperties:
-              x-additionalPropertiesName: atmosphericData
-              type: string
-              description: Additional atmospheric composition data
             properties:
-              compound:
+              token:
                 type: string
-                examples:
-                  - CO2
-                  - N2
-              percentage:
-                type: number
-                format: float
-                exclusiveMaximum: 100
-                examples:
-                  - 95.3
-        discoveredAt:
-          type: string
-          format: date-time
-          examples:
-            - '1610-01-07T00:00:00Z'
-        image:
-          type: string
-          nullable: true
-          examples:
-            - https://cdn.scalar.com/photos/mars.jpg
-        satellites:
-          type: array
-          items:
-            $ref: '#/components/schemas/Satellite'
-        creator:
-          $ref: '#/components/schemas/User'
-        tags:
-          type: array
-          items:
-            type: string
-          examples:
-            - ['solar-system', 'rocky', 'explored']
-        lastUpdated:
-          type: string
-          format: date-time
-          readOnly: true
-          examples:
-            - '2024-01-15T14:30:00Z'
-        successCallbackUrl:
-          type: string
-          format: uri
-          description: URL which gets invoked upon a successful operation
-          examples:
-            - https://example.com/webhook
-        failureCallbackUrl:
-          type: string
-          format: uri
-          description: URL which gets invoked upon a failed operation
-          examples:
-            - https://example.com/webhook
-    Satellite:
-      description: Every satellite in the Scalar Galaxy
-      type: object
+              symbol:
+                type: string
+              name:
+                type: string
+              balance:
+                type: string
+              decimals:
+                type: integer
+            required:
+              - token
+              - symbol
+              - name
+              - balance
+              - decimals
       required:
-        - name
+        - userAddress
+        - timestamp
+        - balances
+    ReconcileResponse:
+      type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-          examples:
-            - 1
-        name:
+        userAddress:
           type: string
-          examples:
-            - Phobos
-        description:
+        positionsChecked:
+          type: integer
+        liveBalancesFound:
+          type: integer
+        discrepancies:
+          type: array
+          items:
+            type: object
+            properties:
+              stockToken:
+                type: string
+              stockSymbol:
+                type: string
+              dbQuantity:
+                type: string
+              liveQuantity:
+                type: string
+              difference:
+                type: string
+            required:
+              - stockToken
+              - stockSymbol
+              - dbQuantity
+              - liveQuantity
+              - difference
+        inSync:
+          type: boolean
+      required:
+        - userAddress
+        - positionsChecked
+        - liveBalancesFound
+        - discrepancies
+        - inSync
+    BackfillResponse:
+      type: object
+      properties:
+        userAddress:
+          type: string
+        ordersProcessed:
+          type: integer
+        message:
+          type: string
+      required:
+        - userAddress
+        - ordersProcessed
+        - message
+    IndexerStatus:
+      type: object
+      properties:
+        lastSyncedBlock:
+          type: integer
+        lastSyncAt:
           type:
             - string
-            - 'null'
-          examples:
-            - Phobos is the larger and innermost of the two moons of Mars.
-        diameter:
-          type: number
-          format: float
-          description: Diameter in kilometers
-          examples:
-            - 22.2
-        type:
-          type: string
-          enum:
-            - moon
-            - asteroid
-            - comet
-          x-enum-varnames:
-            - Moon
-            - Asteroid
-            - Comet
-          x-enum-descriptions:
-            moon: Natural satellites that orbit planets
-            asteroid: Rocky objects that orbit the sun, typically found in the asteroid belt
-            comet: Icy bodies that release gas when approaching the sun, creating visible tails
-          examples:
-            - moon
-        orbit:
-          type: object
-          properties:
-            planetId:
-              type: integer
-              format: int64
-              description: The ID of the planet this satellite orbits
-              examples:
-                - 1
-            orbitalPeriod:
-              type: number
-              format: float
-              description: Orbital period in Earth days
-              examples:
-                - 0.319
-            distance:
-              type: number
-              format: float
-              description: Average distance from the planet in kilometers
-              examples:
-                - 9376
-    PaginatedResource:
-      description: A paginated resource
-      type: object
-      properties:
-        meta:
-          type: object
-          properties:
-            limit:
-              type: integer
-              format: int64
-              examples:
-                - 10
-            offset:
-              type: integer
-              format: int64
-              examples:
-                - 0
-            total:
-              type: integer
-              format: int64
-              examples:
-                - 100
-            next:
-              type:
-                - string
-                - 'null'
-              examples:
-                - '/planets?limit=10&offset=10'
-    ImageUploadedMessage:
-      x-scalar-ignore: true
-      description: Message about an image upload
+            - "null"
+        totalOrdersIndexed:
+          type: integer
+      required:
+        - lastSyncedBlock
+        - lastSyncAt
+        - totalOrdersIndexed
+    SyncResponse:
       type: object
       properties:
         message:
           type: string
-          examples:
-            - Image uploaded successfully
-        imageUrl:
-          type: string
-          description: The URL where the uploaded image can be accessed
-          examples:
-            - https://cdn.scalar.com/images/8f47c132-9d1f-4f83-b5a4-91db5ee757ab.jpg
-        uploadedAt:
-          type: string
-          format: date-time
-          description: Timestamp when the image was uploaded
-          examples:
-            - '2024-01-15T14:30:00Z'
-        fileSize:
+        processed:
           type: integer
-          description: Size of the uploaded image in bytes
-          examples:
-            - 1048576
-        mimeType:
+        newBlock:
+          type: integer
+      required:
+        - message
+        - processed
+        - newBlock
+    LeaderboardTrader:
+      type: object
+      properties:
+        userAddress:
           type: string
-          description: The content type of the uploaded image
-          examples:
-            - image/jpeg
-            - image/png
-    BadRequestError:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+        totalTrades:
+          type: integer
+        totalVolume:
+          type: string
+        totalRealizedPnl:
+          type: string
+        firstTrade:
+          type:
+            - string
+            - "null"
+        lastTrade:
+          type:
+            - string
+            - "null"
+      required:
+        - userAddress
+        - totalTrades
+        - totalVolume
+        - totalRealizedPnl
+        - firstTrade
+        - lastTrade
+    LeaderboardResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        traders:
+          type: array
+          items:
+            type: object
+            properties:
+              userAddress:
+                type: string
+              totalTrades:
+                type: integer
+              totalVolume:
+                type: string
+              totalRealizedPnl:
+                type: string
+              firstTrade:
+                type:
+                  - string
+                  - "null"
+              lastTrade:
+                type:
+                  - string
+                  - "null"
+            required:
+              - userAddress
+              - totalTrades
+              - totalVolume
+              - totalRealizedPnl
+              - firstTrade
+              - lastTrade
+      required:
+        - count
+        - traders
+    StockHolding:
+      type: object
+      properties:
+        stock_token:
+          type: string
+        stock_symbol:
+          type: string
+        holder_count:
+          type: integer
+        total_quantity:
+          type: number
+        total_invested:
+          type: number
+      required:
+        - stock_token
+        - stock_symbol
+        - holder_count
+        - total_quantity
+        - total_invested
+    HoldingsSummaryResponse:
+      type: object
+      properties:
+        stocks:
+          type: array
+          items:
+            type: object
+            properties:
+              stock_token:
+                type: string
+              stock_symbol:
+                type: string
+              holder_count:
+                type: integer
+              total_quantity:
+                type: number
+              total_invested:
+                type: number
+            required:
+              - stock_token
+              - stock_symbol
+              - holder_count
+              - total_quantity
+              - total_invested
+      required:
+        - stocks
+    VaultConfig:
+      type: object
+      properties:
+        network:
+          type: string
+        chainId:
+          type: integer
+        contracts:
+          type: object
+          properties:
+            stockVault:
+              type: string
+            priceOracle:
+              type: string
+          required:
+            - stockVault
+            - priceOracle
+        stables:
+          type: object
+          additionalProperties:
+            type: string
+        stocks:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - network
+        - chainId
+        - contracts
+        - stables
+        - stocks
+    TokenInfo:
+      type: object
+      properties:
+        symbol:
+          type: string
+        address:
+          type: string
+      required:
+        - symbol
+        - address
+    VaultStocksResponse:
+      type: object
+      properties:
+        stockCount:
+          type: integer
+        stocks:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+              address:
+                type: string
+            required:
+              - symbol
+              - address
+        stables:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+              address:
+                type: string
+            required:
+              - symbol
+              - address
+      required:
+        - stockCount
+        - stocks
+        - stables
+    RecentOrdersResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type:
+                  - string
+                  - "null"
+              orderType:
+                type: string
+                enum:
+                  - BUY
+                  - SELL
+              stockToken:
+                type: string
+              stockSymbol:
+                type: string
+              stableToken:
+                type: string
+              stableSymbol:
+                type: string
+              stockAmount:
+                type: string
+              stableAmount:
+                type: string
+              priceAtExecution:
+                type: string
+            required:
+              - txHash
+              - blockNumber
+              - orderType
+              - stockToken
+              - stockSymbol
+              - stableToken
+              - stableSymbol
+              - stockAmount
+              - stableAmount
+              - priceAtExecution
+      required:
+        - count
+        - orders
+    StockOrdersResponse:
+      type: object
+      properties:
+        stockToken:
+          type: string
+        count:
+          type: integer
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type:
+                  - string
+                  - "null"
+              orderType:
+                type: string
+                enum:
+                  - BUY
+                  - SELL
+              stockToken:
+                type: string
+              stockSymbol:
+                type: string
+              stableToken:
+                type: string
+              stableSymbol:
+                type: string
+              stockAmount:
+                type: string
+              stableAmount:
+                type: string
+              priceAtExecution:
+                type: string
+            required:
+              - txHash
+              - blockNumber
+              - orderType
+              - stockToken
+              - stockSymbol
+              - stableToken
+              - stableSymbol
+              - stockAmount
+              - stableAmount
+              - priceAtExecution
+      required:
+        - stockToken
+        - count
+        - orders
+    WebSocketMessage:
       type: object
       properties:
         type:
           type: string
-          examples:
-            - https://example.com/errors/bad-request
-        title:
+          enum:
+            - prices
+        timestamp:
           type: string
-          examples:
-            - Bad Request
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 400
-        detail:
-          type: string
-          examples:
-            - The request was invalid.
-    ForbiddenError:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      type: object
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/forbidden
-        title:
-          type: string
-          examples:
-            - Forbidden
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 403
-        detail:
-          type: string
-          examples:
-            - You are not authorized to access this resource.
-    NotFoundError:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      type: object
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/not-found
-        title:
-          type: string
-          examples:
-            - Not Found
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 404
-        detail:
-          type: string
-          examples:
-            - The resource you are trying to access does not exist.
-    UnauthorizedError:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      type: object
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/not-found
-        title:
-          type: string
-          examples:
-            - Unauthorized
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 401
-        detail:
-          type: string
-          examples:
-            - You are not authorized to access this resource.
-    Conflict:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      type: object
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/conflict
-        title:
-          type: string
-          examples:
-            - Conflict
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 409
-        detail:
-          type: string
-          examples:
-            - The resource you are trying to access is in conflict.
-    UnprocessableEntity:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      type: object
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/unprocessable-entity
-        title:
-          type: string
-          examples:
-            - Unprocessable Entity
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 422
-        detail:
-          type: string
-          examples:
-            - The request was invalid.
-    TooManyRequestsError:
-      x-scalar-ignore: true
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      type: object
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/too-many-requests
-        title:
-          type: string
-          examples:
-            - Too Many Requests
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 429
-        detail:
-          type: string
-          examples:
-            - Rate limit exceeded. Please try again later.
+        lastUpdateTs:
+          type: number
+        prices:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              symbol:
+                type: string
+              price:
+                type: string
+              priceUsd:
+                type: number
+              oraclePrice:
+                type: string
+              timestamp:
+                type: number
+              session:
+                type: string
+              tokenAddress:
+                type: string
+            required:
+              - symbol
+              - price
+              - priceUsd
+              - oraclePrice
+              - timestamp
+              - session
+              - tokenAddress
+      required:
+        - type
+        - timestamp
+        - lastUpdateTs
+        - prices
+x-ext-urls: {}
