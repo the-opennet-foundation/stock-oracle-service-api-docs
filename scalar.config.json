@@ -47,6 +47,10 @@
     {
       "name": "API Reference",
       "path": "./docs/api-reference/openapi.yaml"
+    },
+    {
+      "name": "Sidiora API Reference",
+      "path": "./docs/sidiora-api/sidiora-client-api.yaml"
     }
   ]
 }
