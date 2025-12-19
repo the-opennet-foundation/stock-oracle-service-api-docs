@@ -1,0 +1,5904 @@
+openapi: 3.1.0
+info:
+  title: Sidiora Client API
+  description: REST + WebSocket endpoints for pricing, trading, liquidity, market
+    data, vaults, portfolios, and analytics.
+  version: 1.0.0
+servers:
+  - url: https://sidiora.exchange/api
+    description: Production
+paths:
+  /health:
+    get:
+      summary: Health
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                      - error
+                  timestamp:
+                    type: integer
+                  service:
+                    type: string
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetHealthAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetHealth(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.HealthResponse != nil {
+                    // handle response
+                }
+            }
+  /price/current:
+    get:
+      summary: Current price
+      responses:
+        "200":
+          description: Current price
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ammPrice:
+                    type: number
+                  lastTradePrice:
+                    type: number
+                  reserveUSDC:
+                    type: number
+                  reservePAX:
+                    type: number
+                  liquidity:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetPriceCurrentAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPriceCurrent(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PriceCurrentResponse != nil {
+                    // handle response
+                }
+            }
+  /price/stats:
+    get:
+      summary: Price stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current:
+                    type: number
+                  high24h:
+                    type: number
+                  low24h:
+                    type: number
+                  volume24h:
+                    type: number
+                  priceChange24h:
+                    type: number
+                  priceChangePercent24h:
+                    type: number
+                  trades24h:
+                    type: integer
+                    nullable: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetPriceStatsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPriceStats(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PriceStatsResponse != nil {
+                    // handle response
+                }
+            }
+  /price/candles:
+    get:
+      summary: Price candles
+      parameters:
+        - name: interval
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Candles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  s:
+                    type: string
+                  t:
+                    type: array
+                    items:
+                      type: integer
+                  o:
+                    type: array
+                    items:
+                      type: number
+                  h:
+                    type: array
+                    items:
+                      type: number
+                  l:
+                    type: array
+                    items:
+                      type: number
+                  c:
+                    type: array
+                    items:
+                      type: number
+                  v:
+                    type: array
+                    items:
+                      type: number
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetPriceCandlesAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPriceCandles(ctx, nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.TradingViewCandlesResponse != nil {
+                    // handle response
+                }
+            }
+  /price/depth:
+    get:
+      summary: Price depth
+      responses:
+        "200":
+          description: Depth
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bids:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        price:
+                          type: number
+                        amount:
+                          type: number
+                        total:
+                          type: number
+                  asks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        price:
+                          type: number
+                        amount:
+                          type: number
+                        total:
+                          type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetPriceDepthAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPriceDepth(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PriceDepthResponse != nil {
+                    // handle response
+                }
+            }
+  /trading/estimate-swap:
+    get:
+      summary: Estimate swap
+      parameters:
+        - name: amountIn
+          in: query
+          schema:
+            type: string
+          required: true
+        - name: isBuyPAX
+          in: query
+          schema:
+            type: boolean
+          required: true
+      responses:
+        "200":
+          description: Estimate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  amountIn:
+                    type: number
+                  amountOut:
+                    type: number
+                  fee:
+                    type: number
+                  priceImpact:
+                    type: number
+                  route:
+                    type: string
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetTradingEstimateSwapAsync(
+                amountIn: "<value>",
+                isBuyPAX: false
+            );
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetTradingEstimateSwap(ctx, "<value>", false)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.TradingEstimateSwapResponse != nil {
+                    // handle response
+                }
+            }
+  /trading/fees:
+    get:
+      summary: Trading fees
+      responses:
+        "200":
+          description: Fees
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tradingFee:
+                    type: number
+                  makerFee:
+                    type: number
+                  takerFee:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetTradingFeesAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetTradingFees(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.TradingFeesResponse != nil {
+                    // handle response
+                }
+            }
+  /trading/history:
+    get:
+      summary: Trade history
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        trader:
+                          type: string
+                        side:
+                          type: string
+                          enum:
+                            - buy
+                            - sell
+                        amountIn:
+                          type: number
+                        amountOut:
+                          type: number
+                        price:
+                          type: number
+                        fee:
+                          type: number
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type: integer
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetTradingHistoryAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetTradingHistory(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.TradesResponse != nil {
+                    // handle response
+                }
+            }
+  /trading/user-trades/{address}:
+    get:
+      summary: User trades
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        side:
+                          type: string
+                          enum:
+                            - buy
+                            - sell
+                        amountIn:
+                          type: number
+                        amountOut:
+                          type: number
+                        fee:
+                          type: number
+                        txHash:
+                          type: string
+                        timestamp:
+                          type: integer
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetTradingUserTradesAddressAsync(address: "6585
+            Jude Wells");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetTradingUserTradesAddress(ctx, "6585 Jude Wells", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.UserTradesResponse != nil {
+                    // handle response
+                }
+            }
+  /orderbook:
+    get:
+      summary: Orderbook
+      parameters:
+        - name: depth
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orderbook
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bids:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        price:
+                          type: number
+                        amount:
+                          type: number
+                        total:
+                          type: number
+                          nullable: true
+                  asks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        price:
+                          type: number
+                        amount:
+                          type: number
+                        total:
+                          type: number
+                          nullable: true
+                  spread:
+                    type: number
+                    nullable: true
+                  spreadPercent:
+                    type: number
+                    nullable: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetOrderbookAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetOrderbook(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.OrderbookResponse != nil {
+                    // handle response
+                }
+            }
+  /orderbook/user/{address}:
+    get:
+      summary: User orders
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        orderId:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - buy
+                            - sell
+                        price:
+                          type: number
+                        amount:
+                          type: number
+                        filledAmount:
+                          type: number
+                        remainingAmount:
+                          type: number
+                        status:
+                          type: string
+                        timestamp:
+                          type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetOrderbookUserAddressAsync(address: "1256 Jana
+            Light");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetOrderbookUserAddress(ctx, "1256 Jana Light")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.UserOrdersResponse != nil {
+                    // handle response
+                }
+            }
+  /orderbook/order/{id}:
+    get:
+      summary: Order details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      orderId:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - buy
+                          - sell
+                      price:
+                        type: number
+                      amount:
+                        type: number
+                      filledAmount:
+                        type: number
+                      remainingAmount:
+                        type: number
+                      status:
+                        type: string
+                      timestamp:
+                        type: integer
+                  - type: object
+                    properties:
+                      trader:
+                        type: string
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetOrderbookOrderIdAsync(id: "<id>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetOrderbookOrderID(ctx, "<id>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.OrderDetails != nil {
+                    // handle response
+                }
+            }
+  /liquidity/pools:
+    get:
+      summary: Liquidity pools
+      responses:
+        "200":
+          description: Pools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pools:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pair:
+                          type: string
+                        reserveUSDC:
+                          type: number
+                        reservePAX:
+                          type: number
+                        totalLiquidity:
+                          type: number
+                        tvl:
+                          type: number
+                        price:
+                          type: number
+                        apr:
+                          type: number
+                        volume24h:
+                          type: number
+                        fees24h:
+                          type: number
+                        timestamp:
+                          type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetLiquidityPoolsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetLiquidityPools(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.LiquidityPoolsResponse != nil {
+                    // handle response
+                }
+            }
+  /liquidity/user/{address}:
+    get:
+      summary: User liquidity
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User liquidity
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      address:
+                        type: string
+                      hasPosition:
+                        type: boolean
+                        enum:
+                          - false
+                      timestamp:
+                        type: integer
+                  - type: object
+                    properties:
+                      address:
+                        type: string
+                      hasPosition:
+                        type: boolean
+                        enum:
+                          - true
+                      liquidityTokens:
+                        type: number
+                      share:
+                        type: number
+                      usdcAmount:
+                        type: number
+                      paxAmount:
+                        type: number
+                      valueUSD:
+                        type: number
+                      timestamp:
+                        type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetLiquidityUserAddressAsync(address: "7301
+            Terrell Harbors");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetLiquidityUserAddress(ctx, "7301 Terrell Harbors")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.LiquidityUserResponse != nil {
+                    // handle response
+                }
+            }
+  /liquidity/estimate-add:
+    get:
+      summary: Estimate add liquidity
+      parameters:
+        - name: usdcAmount
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Estimate add
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usdcAmount:
+                    type: number
+                  paxRequired:
+                    type: number
+                  liquidityMinted:
+                    type: number
+                  shareOfPool:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetLiquidityEstimateAddAsync(usdcAmount:
+            "<value>");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetLiquidityEstimateAdd(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.LiquidityEstimateAddResponse != nil {
+                    // handle response
+                }
+            }
+  /liquidity/estimate-remove:
+    get:
+      summary: Estimate remove liquidity
+      parameters:
+        - name: liquidity
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Estimate remove
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  liquidityBurned:
+                    type: number
+                  usdcReceived:
+                    type: number
+                  paxReceived:
+                    type: number
+                  shareRemoved:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetLiquidityEstimateRemoveAsync(liquidity:
+            "<value>");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetLiquidityEstimateRemove(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.LiquidityEstimateRemoveResponse != nil {
+                    // handle response
+                }
+            }
+  /market/symbols:
+    get:
+      summary: Market symbols
+      responses:
+        "200":
+          description: Symbols
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbols:
+                    type: array
+                    items:
+                      type: string
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketSymbolsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketSymbols(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketSymbolsResponse != nil {
+                    // handle response
+                }
+            }
+  /market/prices:
+    get:
+      summary: Market prices
+      responses:
+        "200":
+          description: Prices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pair:
+                          type: string
+                        price:
+                          type: string
+                        percentChange24h:
+                          type: string
+                      additionalProperties: true
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketPricesAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketPrices(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketPricesResponse != nil {
+                    // handle response
+                }
+            }
+  /market/prices/{symbols}:
+    get:
+      summary: Market prices by symbols
+      parameters:
+        - name: symbols
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Prices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pair:
+                          type: string
+                        price:
+                          type: string
+                        percentChange24h:
+                          type: string
+                      additionalProperties: true
+                  requested:
+                    type: array
+                    items:
+                      type: string
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketPricesSymbolsAsync(symbols: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketPricesSymbols(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketPricesBySymbolsResponse != nil {
+                    // handle response
+                }
+            }
+  /market/ticker/{symbol}:
+    get:
+      summary: Market ticker
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ticker
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  ticker:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketTickerSymbolAsync(symbol: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketTickerSymbol(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketTickerResponse != nil {
+                    // handle response
+                }
+            }
+  /market/stats/{symbol}:
+    get:
+      summary: Market stats
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  price:
+                    type: object
+                    additionalProperties:
+                      type: number
+                  change:
+                    type: object
+                    additionalProperties:
+                      type: number
+                  details:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  orderBook:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  recentTrades:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketStatsSymbolAsync(symbol: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketStatsSymbol(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketTokenStats != nil {
+                    // handle response
+                }
+            }
+  /market/stats:
+    get:
+      summary: Market stats batch
+      parameters:
+        - name: symbols
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Batch stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    additionalProperties:
+                      oneOf:
+                        - type: object
+                          properties:
+                            symbol:
+                              type: string
+                            price:
+                              type: object
+                              additionalProperties:
+                                type: number
+                            change:
+                              type: object
+                              additionalProperties:
+                                type: number
+                            details:
+                              type: object
+                              nullable: true
+                              additionalProperties: true
+                            orderBook:
+                              type: object
+                              nullable: true
+                              additionalProperties: true
+                            recentTrades:
+                              type: array
+                              items:
+                                type: object
+                                additionalProperties: true
+                            timestamp:
+                              type: integer
+                        - type: object
+                          properties:
+                            error:
+                              type: string
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketStatsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketStats(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketStatsBatchResponse != nil {
+                    // handle response
+                }
+            }
+  /market/chart/{symbol}:
+    get:
+      summary: Market chart
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Chart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  s:
+                    type: string
+                  t:
+                    type: array
+                    items:
+                      type: integer
+                  o:
+                    type: array
+                    items:
+                      type: number
+                  h:
+                    type: array
+                    items:
+                      type: number
+                  l:
+                    type: array
+                    items:
+                      type: number
+                  c:
+                    type: array
+                    items:
+                      type: number
+                  v:
+                    type: array
+                    items:
+                      type: number
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketChartSymbolAsync(symbol: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketChartSymbol(ctx, "<value>", nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.TradingViewCandlesResponse != nil {
+                    // handle response
+                }
+            }
+  /market/candles/{symbol}:
+    get:
+      summary: Market candles
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Candles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  interval:
+                    type: string
+                  candles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: integer
+                        date:
+                          type: string
+                        open:
+                          type: number
+                        high:
+                          type: number
+                        low:
+                          type: number
+                        close:
+                          type: number
+                        volume:
+                          type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketCandlesSymbolAsync(symbol: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketCandlesSymbol(ctx, "<value>", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketCandlesResponse != nil {
+                    // handle response
+                }
+            }
+  /market/orderbook/{symbol}:
+    get:
+      summary: Market orderbook
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit_bids
+          in: query
+          schema:
+            type: integer
+        - name: limit_asks
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orderbook
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  orderBook:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetMarketOrderbookSymbolAsync(symbol:
+            "<value>");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketOrderbookSymbol(ctx, "<value>", nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketOrderbookResponse != nil {
+                    // handle response
+                }
+            }
+  /market/trades/{symbol}:
+    get:
+      summary: Market trades
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketTradesSymbolAsync(symbol: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketTradesSymbol(ctx, "<value>", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketTradesResponse != nil {
+                    // handle response
+                }
+            }
+  /market/overview:
+    get:
+      summary: Market overview
+      parameters:
+        - name: symbols
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Overview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        price:
+                          type: number
+                        change24hPercent:
+                          type: number
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketOverviewAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketOverview(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketOverviewResponse != nil {
+                    // handle response
+                }
+            }
+  /market/symbol-details/{symbol}:
+    get:
+      summary: Symbol details
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  details:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetMarketSymbolDetailsSymbolAsync(symbol:
+            "<value>");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketSymbolDetailsSymbol(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.MarketSymbolDetailsResponse != nil {
+                    // handle response
+                }
+            }
+  /market/vault/tokens:
+    get:
+      summary: Vault tokens
+      responses:
+        "200":
+          description: Tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        symbol:
+                          type: string
+                        name:
+                          type: string
+                        decimals:
+                          type: integer
+                        coingeckoId:
+                          type: string
+                      additionalProperties: true
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketVaultTokensAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketVaultTokens(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.VaultTokensResponse != nil {
+                    // handle response
+                }
+            }
+  /market/vault/overview:
+    get:
+      summary: Vault overview
+      responses:
+        "200":
+          description: Overview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vaultAddress:
+                    type: string
+                  totalTokens:
+                    type: integer
+                  totalValueLocked:
+                    type: number
+                  tokens:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            address:
+                              type: string
+                            isRegistered:
+                              type: boolean
+                            decimals:
+                              type: integer
+                            reserves:
+                              type: string
+                            reservesRaw:
+                              type: string
+                            symbol:
+                              type: string
+                            name:
+                              type: string
+                            coingeckoId:
+                              type: string
+                          additionalProperties: true
+                        - type: object
+                          properties:
+                            price:
+                              type: string
+                            reservesUSD:
+                              type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketVaultOverviewAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketVaultOverview(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.VaultOverviewResponse != nil {
+                    // handle response
+                }
+            }
+  /market/vault/token/{address}:
+    get:
+      summary: Vault token info
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  isRegistered:
+                    type: boolean
+                  decimals:
+                    type: integer
+                  reserves:
+                    type: string
+                  reservesRaw:
+                    type: string
+                  symbol:
+                    type: string
+                  name:
+                    type: string
+                  coingeckoId:
+                    type: string
+                additionalProperties: true
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetMarketVaultTokenAddressAsync(address: "7468
+            Feest Causeway");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketVaultTokenAddress(ctx, "7468 Feest Causeway")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.VaultTokenInfoResponse != nil {
+                    // handle response
+                }
+            }
+  /market/vault/price/{address}:
+    get:
+      summary: Vault token price
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token price
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  price:
+                    type: object
+                    properties:
+                      raw:
+                        type: string
+                      formatted:
+                        type: string
+                      decimals:
+                        type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetMarketVaultPriceAddressAsync(address: "596
+            Nightingale Close");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketVaultPriceAddress(ctx, "596 Nightingale Close")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.VaultTokenPriceResponse != nil {
+                    // handle response
+                }
+            }
+  /market/vault/quote:
+    get:
+      summary: Vault swap quote
+      parameters:
+        - name: tokenIn
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tokenOut
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: amountIn
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Quote
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokenIn:
+                    type: object
+                    additionalProperties: true
+                  tokenOut:
+                    type: object
+                    additionalProperties: true
+                  valueUSD:
+                    type: number
+                  rate:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetMarketVaultQuoteAsync(
+                tokenIn: "<value>",
+                tokenOut: "<value>",
+                amountIn: "<value>"
+            );
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetMarketVaultQuote(ctx, "<value>", "<value>", "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.VaultSwapQuoteResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/positions:
+    get:
+      summary: Portfolio positions
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  positions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        token:
+                          type: object
+                          properties:
+                            address:
+                              type: string
+                            symbol:
+                              type: string
+                            name:
+                              type: string
+                            decimals:
+                              type: integer
+                        balance:
+                          type: string
+                        balanceRaw:
+                          type: string
+                        priceUSD:
+                          type: number
+                        valueUSD:
+                          type: number
+                        isVaultSupported:
+                          type: boolean
+                  totalValueUSD:
+                    type: number
+                  positionCount:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressPositionsAsync(address:
+            "88427 S Elm Street");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressPositions(ctx, "88427 S Elm Street")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioPositionsResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/holdings:
+    get:
+      summary: Holdings breakdown
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Holdings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  breakdown:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        address:
+                          type: string
+                        balance:
+                          type: string
+                        valueUSD:
+                          type: number
+                        percentage:
+                          type: number
+                  totalValueUSD:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressHoldingsAsync(address: "46243
+            Orchard Drive");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressHoldings(ctx, "46243 Orchard Drive")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioHoldingsBreakdownResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/pnl:
+    get:
+      summary: PnL
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: period
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PnL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  period:
+                    type: string
+                  currentValue:
+                    type: number
+                  realizedPNL:
+                    type: number
+                  unrealizedPNL:
+                    type: number
+                  totalPNL:
+                    type: number
+                  pnlPercent:
+                    type: number
+                  totalBought:
+                    type: number
+                  totalSold:
+                    type: number
+                  tradeCount:
+                    type: number
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressPnlAsync(address: "883 Smith
+            Street");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressPnl(ctx, "883 Smith Street", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioPnlResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/trades:
+    get:
+      summary: Portfolio trades
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type: integer
+                        tokenIn:
+                          type: object
+                          additionalProperties: true
+                        tokenOut:
+                          type: object
+                          additionalProperties: true
+                        valueUSD:
+                          type: number
+                  total:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressTradesAsync(address: "9590
+            Hodkiewicz Park");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressTrades(ctx, "9590 Hodkiewicz Park", nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioTradesResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/performance:
+    get:
+      summary: Performance
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Performance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  days:
+                    type: integer
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                        balance:
+                          type: string
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressPerformanceAsync(address:
+            "16293 Robel Fall");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressPerformance(ctx, "16293 Robel Fall", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioPerformanceResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/position/{token}:
+    get:
+      summary: Position details
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Position detail
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      address:
+                        type: string
+                      token:
+                        type: string
+                      hasPosition:
+                        type: boolean
+                        enum:
+                          - false
+                      timestamp:
+                        type: integer
+                  - type: object
+                    properties:
+                      address:
+                        type: string
+                      hasPosition:
+                        type: boolean
+                        enum:
+                          - true
+                      token:
+                        type: object
+                        additionalProperties: true
+                      balance:
+                        type: string
+                      valueUSD:
+                        type: number
+                      currentPrice:
+                        type: string
+                      percentOfPortfolio:
+                        type: number
+                      recentTrades:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            txHash:
+                              type: string
+                            blockNumber:
+                              type: integer
+                            timestamp:
+                              type: integer
+                            tokenIn:
+                              type: object
+                              additionalProperties: true
+                            tokenOut:
+                              type: object
+                              additionalProperties: true
+                            valueUSD:
+                              type: number
+                      timestamp:
+                        type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetPortfolioAddressPositionTokenAsync(
+                address: "673 Bethany Villages",
+                token: "<value>"
+            );
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressPositionToken(ctx, "673 Bethany Villages", "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioPositionDetailsResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/summary:
+    get:
+      summary: Portfolio summary
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  positions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        token:
+                          type: object
+                          properties:
+                            address:
+                              type: string
+                            symbol:
+                              type: string
+                            name:
+                              type: string
+                            decimals:
+                              type: integer
+                        balance:
+                          type: string
+                        balanceRaw:
+                          type: string
+                        priceUSD:
+                          type: number
+                        valueUSD:
+                          type: number
+                        isVaultSupported:
+                          type: boolean
+                  totalValueUSD:
+                    type: number
+                  pnl:
+                    type: object
+                    additionalProperties: true
+                  recentTrades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txHash:
+                          type: string
+                        blockNumber:
+                          type: integer
+                        timestamp:
+                          type: integer
+                        tokenIn:
+                          type: object
+                          additionalProperties: true
+                        tokenOut:
+                          type: object
+                          additionalProperties: true
+                        valueUSD:
+                          type: number
+                  tradeCount:
+                    type: integer
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressSummaryAsync(address: "34335
+            N Main Avenue");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressSummary(ctx, "34335 N Main Avenue")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioSummaryResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/profile:
+    get:
+      summary: Portfolio profile
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressProfileAsync(address: "35885
+            N Chestnut Street");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressProfile(ctx, "35885 N Chestnut Street")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioProfileResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/transactions:
+    get:
+      summary: Transactions
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  transactions:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressTransactionsAsync(address:
+            "931 Madison Courts");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressTransactions(ctx, "931 Madison Courts", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioTransactionsResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/token-transfers:
+    get:
+      summary: Token transfers
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transfers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  transfers:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressTokenTransfersAsync(address:
+            "17674 Wintheiser Cape");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressTokenTransfers(ctx, "17674 Wintheiser Cape", nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioTokenTransfersResponse != nil {
+                    // handle response
+                }
+            }
+  /portfolio/{address}/balance-history:
+    get:
+      summary: Balance history
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  history:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetPortfolioAddressBalanceHistoryAsync(address:
+            "2188 Freda Stravenue");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: >-
+            package main
+
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetPortfolioAddressBalanceHistory(ctx, "2188 Freda Stravenue")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.PortfolioBalanceHistoryResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/leaderboard:
+    get:
+      summary: Leaderboard
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: period
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  sortBy:
+                    type: string
+                  leaderboard:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank:
+                          type: integer
+                        address:
+                          type: string
+                        tradeCount:
+                          type: number
+                        totalVolume:
+                          type: number
+                        totalProfit:
+                          type: number
+                        totalLoss:
+                          type: number
+                        netPNL:
+                          type: number
+                        avgTradeSize:
+                          type: number
+                        lastTrade:
+                          type: object
+                          nullable: true
+                  totalTraders:
+                    type: integer
+                  error:
+                    type: string
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsLeaderboardAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsLeaderboard(ctx, nil, nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsLeaderboardResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/swaps:
+    get:
+      summary: Recent swaps
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Swaps
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  swaps:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsSwapsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsSwaps(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsRecentSwapsResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/volume:
+    get:
+      summary: Total volume
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Volume
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  totalVolume:
+                    type: number
+                  tradeCount:
+                    type: number
+                  uniqueTraders:
+                    type: number
+                  timestamp:
+                    type: integer
+                  error:
+                    type: string
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsVolumeAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsVolume(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsTotalVolumeResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/volume/tokens:
+    get:
+      summary: Volume by token
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Volume by token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  tokens:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        symbol:
+                          type: string
+                        volume:
+                          type: number
+                  timestamp:
+                    type: integer
+                  error:
+                    type: string
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsVolumeTokensAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsVolumeTokens(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsVolumeByTokenResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/volume/series:
+    get:
+      summary: Volume series
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+        - name: interval
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Series
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  series:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: integer
+                        volume:
+                          type: number
+                        trades:
+                          type: number
+                  period:
+                    type: string
+                  interval:
+                    type: string
+                  timestamp:
+                    type: integer
+                  error:
+                    type: string
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsVolumeSeriesAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsVolumeSeries(ctx, nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsVolumeSeriesResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/metrics:
+    get:
+      summary: Metrics
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  volume:
+                    type: object
+                    additionalProperties: true
+                  trades:
+                    type: object
+                    additionalProperties: true
+                  traders:
+                    type: object
+                    additionalProperties: true
+                  vault:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsMetricsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsMetrics(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsTradingMetricsResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/pairs:
+    get:
+      summary: Top pairs
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pairs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  pairs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pair:
+                          type: string
+                        tokenIn:
+                          type: object
+                          additionalProperties: true
+                        tokenOut:
+                          type: object
+                          additionalProperties: true
+                        volume:
+                          type: number
+                        trades:
+                          type: number
+                  timestamp:
+                    type: integer
+                  error:
+                    type: string
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsPairsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsPairs(ctx, nil, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsTopPairsResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/overview:
+    get:
+      summary: Analytics overview
+      responses:
+        "200":
+          description: Overview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  volume:
+                    type: object
+                    additionalProperties: true
+                  metrics:
+                    type: object
+                    additionalProperties: true
+                  topPairs:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  recentSwaps:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsOverviewAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsOverview(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsOverviewResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/network/stats:
+    get:
+      summary: Network stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsNetworkStatsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsNetworkStats(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsNetworkStatsResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/network/transactions:
+    get:
+      summary: Network transactions
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsNetworkTransactionsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsNetworkTransactions(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsNetworkTransactionsResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/network/blocks:
+    get:
+      summary: Network blocks
+      responses:
+        "200":
+          description: Blocks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blocks:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsNetworkBlocksAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsNetworkBlocks(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsNetworkBlocksResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/network/charts/transactions:
+    get:
+      summary: Network transactions chart
+      responses:
+        "200":
+          description: Chart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chart:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsNetworkChartsTransactionsAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsNetworkChartsTransactions(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsNetworkChartResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/network/charts/market:
+    get:
+      summary: Network market chart
+      responses:
+        "200":
+          description: Chart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chart:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsNetworkChartsMarketAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsNetworkChartsMarket(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsNetworkChartResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/token/{address}:
+    get:
+      summary: Token analytics
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  token:
+                    type: object
+                    additionalProperties: true
+                  transfers:
+                    type: object
+                    additionalProperties: true
+                  holders:
+                    type: object
+                    additionalProperties: true
+                  counters:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: >-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+
+            var sdk = new SidioraClientApi();
+
+
+            var res = await sdk.GetAnalyticsTokenAddressAsync(address: "332 Art
+            Landing");
+
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsTokenAddress(ctx, "332 Art Landing")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsTokenResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/tokens:
+    get:
+      summary: Tokens analytics
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tokens analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsTokensAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsTokens(ctx, nil)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsTokensResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/tx/{hash}:
+    get:
+      summary: Transaction analytics
+      parameters:
+        - name: hash
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tx analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hash:
+                    type: string
+                  transaction:
+                    type: object
+                    additionalProperties: true
+                  summary:
+                    type: object
+                    additionalProperties: true
+                  tokenTransfers:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsTxHashAsync(hash: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsTxHash(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsTxResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/indexer/status:
+    get:
+      summary: Indexer status
+      responses:
+        "200":
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  indexer:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsIndexerStatusAsync();
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsIndexerStatus(ctx)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsIndexerStatusResponse != nil {
+                    // handle response
+                }
+            }
+  /analytics/search:
+    get:
+      summary: Search analytics
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  results:
+                    type: object
+                    additionalProperties: true
+                  timestamp:
+                    type: integer
+      x-codeSamples:
+        - label: csharp
+          lang: csharp
+          source: |-
+            using PaxeerNetwork.SidioraClientApiCsharp;
+
+            var sdk = new SidioraClientApi();
+
+            var res = await sdk.GetAnalyticsSearchAsync(q: "<value>");
+
+            // handle response
+        - label: go
+          lang: go
+          source: |-
+            package main
+
+            import(
+            	"context"
+            	sidioraclientapigo "sidiora-client-api-go"
+            	"log"
+            )
+
+            func main() {
+                ctx := context.Background()
+
+                s := sidioraclientapigo.New()
+
+                res, err := s.GetAnalyticsSearch(ctx, "<value>")
+                if err != nil {
+                    log.Fatal(err)
+                }
+                if res.AnalyticsSearchResponse != nil {
+                    // handle response
+                }
+            }
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+        timestamp:
+          type: integer
+        service:
+          type: string
+    PriceCurrentResponse:
+      type: object
+      properties:
+        ammPrice:
+          type: number
+        lastTradePrice:
+          type: number
+        reserveUSDC:
+          type: number
+        reservePAX:
+          type: number
+        liquidity:
+          type: number
+        timestamp:
+          type: integer
+    PriceStatsResponse:
+      type: object
+      properties:
+        current:
+          type: number
+        high24h:
+          type: number
+        low24h:
+          type: number
+        volume24h:
+          type: number
+        priceChange24h:
+          type: number
+        priceChangePercent24h:
+          type: number
+        trades24h:
+          type: integer
+          nullable: true
+        timestamp:
+          type: integer
+    TradingViewCandlesResponse:
+      type: object
+      properties:
+        s:
+          type: string
+        t:
+          type: array
+          items:
+            type: integer
+        o:
+          type: array
+          items:
+            type: number
+        h:
+          type: array
+          items:
+            type: number
+        l:
+          type: array
+          items:
+            type: number
+        c:
+          type: array
+          items:
+            type: number
+        v:
+          type: array
+          items:
+            type: number
+    PriceDepthResponse:
+      type: object
+      properties:
+        bids:
+          type: array
+          items:
+            type: object
+            properties:
+              price:
+                type: number
+              amount:
+                type: number
+              total:
+                type: number
+        asks:
+          type: array
+          items:
+            type: object
+            properties:
+              price:
+                type: number
+              amount:
+                type: number
+              total:
+                type: number
+        timestamp:
+          type: integer
+    PriceDepthLevel:
+      type: object
+      properties:
+        price:
+          type: number
+        amount:
+          type: number
+        total:
+          type: number
+    TradingEstimateSwapResponse:
+      type: object
+      properties:
+        amountIn:
+          type: number
+        amountOut:
+          type: number
+        fee:
+          type: number
+        priceImpact:
+          type: number
+        route:
+          type: string
+        timestamp:
+          type: integer
+    TradingFeesResponse:
+      type: object
+      properties:
+        tradingFee:
+          type: number
+        makerFee:
+          type: number
+        takerFee:
+          type: number
+        timestamp:
+          type: integer
+    TradesResponse:
+      type: object
+      properties:
+        trades:
+          type: array
+          items:
+            type: object
+            properties:
+              trader:
+                type: string
+              side:
+                type: string
+                enum:
+                  - buy
+                  - sell
+              amountIn:
+                type: number
+              amountOut:
+                type: number
+              price:
+                type: number
+              fee:
+                type: number
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type: integer
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    TradeHistoryItem:
+      type: object
+      properties:
+        trader:
+          type: string
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        amountIn:
+          type: number
+        amountOut:
+          type: number
+        price:
+          type: number
+        fee:
+          type: number
+        txHash:
+          type: string
+        blockNumber:
+          type: integer
+        timestamp:
+          type: integer
+    UserTradesResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        trades:
+          type: array
+          items:
+            type: object
+            properties:
+              side:
+                type: string
+                enum:
+                  - buy
+                  - sell
+              amountIn:
+                type: number
+              amountOut:
+                type: number
+              fee:
+                type: number
+              txHash:
+                type: string
+              timestamp:
+                type: integer
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    UserTradeHistoryItem:
+      type: object
+      properties:
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        amountIn:
+          type: number
+        amountOut:
+          type: number
+        fee:
+          type: number
+        txHash:
+          type: string
+        timestamp:
+          type: integer
+    OrderbookResponse:
+      type: object
+      properties:
+        bids:
+          type: array
+          items:
+            type: object
+            properties:
+              price:
+                type: number
+              amount:
+                type: number
+              total:
+                type: number
+                nullable: true
+        asks:
+          type: array
+          items:
+            type: object
+            properties:
+              price:
+                type: number
+              amount:
+                type: number
+              total:
+                type: number
+                nullable: true
+        spread:
+          type: number
+          nullable: true
+        spreadPercent:
+          type: number
+          nullable: true
+        timestamp:
+          type: integer
+    OrderbookLevel:
+      type: object
+      properties:
+        price:
+          type: number
+        amount:
+          type: number
+        total:
+          type: number
+          nullable: true
+    UserOrdersResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              orderId:
+                type: string
+              type:
+                type: string
+                enum:
+                  - buy
+                  - sell
+              price:
+                type: number
+              amount:
+                type: number
+              filledAmount:
+                type: number
+              remainingAmount:
+                type: number
+              status:
+                type: string
+              timestamp:
+                type: integer
+        timestamp:
+          type: integer
+    UserOrder:
+      type: object
+      properties:
+        orderId:
+          type: string
+        type:
+          type: string
+          enum:
+            - buy
+            - sell
+        price:
+          type: number
+        amount:
+          type: number
+        filledAmount:
+          type: number
+        remainingAmount:
+          type: number
+        status:
+          type: string
+        timestamp:
+          type: integer
+    OrderDetails:
+      allOf:
+        - type: object
+          properties:
+            orderId:
+              type: string
+            type:
+              type: string
+              enum:
+                - buy
+                - sell
+            price:
+              type: number
+            amount:
+              type: number
+            filledAmount:
+              type: number
+            remainingAmount:
+              type: number
+            status:
+              type: string
+            timestamp:
+              type: integer
+        - type: object
+          properties:
+            trader:
+              type: string
+    LiquidityPoolsResponse:
+      type: object
+      properties:
+        pools:
+          type: array
+          items:
+            type: object
+            properties:
+              pair:
+                type: string
+              reserveUSDC:
+                type: number
+              reservePAX:
+                type: number
+              totalLiquidity:
+                type: number
+              tvl:
+                type: number
+              price:
+                type: number
+              apr:
+                type: number
+              volume24h:
+                type: number
+              fees24h:
+                type: number
+              timestamp:
+                type: integer
+        timestamp:
+          type: integer
+    LiquidityPool:
+      type: object
+      properties:
+        pair:
+          type: string
+        reserveUSDC:
+          type: number
+        reservePAX:
+          type: number
+        totalLiquidity:
+          type: number
+        tvl:
+          type: number
+        price:
+          type: number
+        apr:
+          type: number
+        volume24h:
+          type: number
+        fees24h:
+          type: number
+        timestamp:
+          type: integer
+    LiquidityUserResponse:
+      oneOf:
+        - type: object
+          properties:
+            address:
+              type: string
+            hasPosition:
+              type: boolean
+              enum:
+                - false
+            timestamp:
+              type: integer
+        - type: object
+          properties:
+            address:
+              type: string
+            hasPosition:
+              type: boolean
+              enum:
+                - true
+            liquidityTokens:
+              type: number
+            share:
+              type: number
+            usdcAmount:
+              type: number
+            paxAmount:
+              type: number
+            valueUSD:
+              type: number
+            timestamp:
+              type: integer
+    LiquidityEstimateAddResponse:
+      type: object
+      properties:
+        usdcAmount:
+          type: number
+        paxRequired:
+          type: number
+        liquidityMinted:
+          type: number
+        shareOfPool:
+          type: number
+        timestamp:
+          type: integer
+    LiquidityEstimateRemoveResponse:
+      type: object
+      properties:
+        liquidityBurned:
+          type: number
+        usdcReceived:
+          type: number
+        paxReceived:
+          type: number
+        shareRemoved:
+          type: number
+        timestamp:
+          type: integer
+    MarketSymbolsResponse:
+      type: object
+      properties:
+        symbols:
+          type: array
+          items:
+            type: string
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    MarketPricesResponse:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            type: object
+            properties:
+              pair:
+                type: string
+              price:
+                type: string
+              percentChange24h:
+                type: string
+            additionalProperties: true
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    GeminiPriceFeedItem:
+      type: object
+      properties:
+        pair:
+          type: string
+        price:
+          type: string
+        percentChange24h:
+          type: string
+      additionalProperties: true
+    MarketPricesBySymbolsResponse:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            type: object
+            properties:
+              pair:
+                type: string
+              price:
+                type: string
+              percentChange24h:
+                type: string
+            additionalProperties: true
+        requested:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: integer
+    MarketTickerResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        ticker:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    GeminiTicker:
+      type: object
+      additionalProperties: true
+    MarketTokenStats:
+      type: object
+      properties:
+        symbol:
+          type: string
+        price:
+          type: object
+          additionalProperties:
+            type: number
+        change:
+          type: object
+          additionalProperties:
+            type: number
+        details:
+          type: object
+          nullable: true
+          additionalProperties: true
+        orderBook:
+          type: object
+          nullable: true
+          additionalProperties: true
+        recentTrades:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        timestamp:
+          type: integer
+    MarketStatsBatchResponse:
+      type: object
+      properties:
+        stats:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: object
+                properties:
+                  symbol:
+                    type: string
+                  price:
+                    type: object
+                    additionalProperties:
+                      type: number
+                  change:
+                    type: object
+                    additionalProperties:
+                      type: number
+                  details:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  orderBook:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  recentTrades:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  timestamp:
+                    type: integer
+              - type: object
+                properties:
+                  error:
+                    type: string
+        timestamp:
+          type: integer
+    MarketCandlesResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        interval:
+          type: string
+        candles:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: integer
+              date:
+                type: string
+              open:
+                type: number
+              high:
+                type: number
+              low:
+                type: number
+              close:
+                type: number
+              volume:
+                type: number
+        timestamp:
+          type: integer
+    GeminiCandle:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+        date:
+          type: string
+        open:
+          type: number
+        high:
+          type: number
+        low:
+          type: number
+        close:
+          type: number
+        volume:
+          type: number
+    MarketOrderbookResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        orderBook:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    MarketTradesResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        trades:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        timestamp:
+          type: integer
+    MarketOverviewResponse:
+      type: object
+      properties:
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+              price:
+                type: number
+              change24hPercent:
+                type: number
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    MarketSymbolDetailsResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    VaultTokensResponse:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              symbol:
+                type: string
+              name:
+                type: string
+              decimals:
+                type: integer
+              coingeckoId:
+                type: string
+            additionalProperties: true
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    VaultRegisteredToken:
+      type: object
+      properties:
+        address:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        decimals:
+          type: integer
+        coingeckoId:
+          type: string
+      additionalProperties: true
+    VaultOverviewResponse:
+      type: object
+      properties:
+        vaultAddress:
+          type: string
+        totalTokens:
+          type: integer
+        totalValueLocked:
+          type: number
+        tokens:
+          type: array
+          items:
+            allOf:
+              - type: object
+                properties:
+                  address:
+                    type: string
+                  isRegistered:
+                    type: boolean
+                  decimals:
+                    type: integer
+                  reserves:
+                    type: string
+                  reservesRaw:
+                    type: string
+                  symbol:
+                    type: string
+                  name:
+                    type: string
+                  coingeckoId:
+                    type: string
+                additionalProperties: true
+              - type: object
+                properties:
+                  price:
+                    type: string
+                  reservesUSD:
+                    type: number
+        timestamp:
+          type: integer
+    VaultOverviewToken:
+      allOf:
+        - type: object
+          properties:
+            address:
+              type: string
+            isRegistered:
+              type: boolean
+            decimals:
+              type: integer
+            reserves:
+              type: string
+            reservesRaw:
+              type: string
+            symbol:
+              type: string
+            name:
+              type: string
+            coingeckoId:
+              type: string
+          additionalProperties: true
+        - type: object
+          properties:
+            price:
+              type: string
+            reservesUSD:
+              type: number
+    VaultTokenInfoResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        isRegistered:
+          type: boolean
+        decimals:
+          type: integer
+        reserves:
+          type: string
+        reservesRaw:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        coingeckoId:
+          type: string
+      additionalProperties: true
+    VaultTokenPriceResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        price:
+          type: object
+          properties:
+            raw:
+              type: string
+            formatted:
+              type: string
+            decimals:
+              type: integer
+        timestamp:
+          type: integer
+    VaultTokenPrice:
+      type: object
+      properties:
+        raw:
+          type: string
+        formatted:
+          type: string
+        decimals:
+          type: integer
+    VaultSwapQuoteResponse:
+      type: object
+      properties:
+        tokenIn:
+          type: object
+          additionalProperties: true
+        tokenOut:
+          type: object
+          additionalProperties: true
+        valueUSD:
+          type: number
+        rate:
+          type: number
+        timestamp:
+          type: integer
+    PortfolioPositionsResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        positions:
+          type: array
+          items:
+            type: object
+            properties:
+              token:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  symbol:
+                    type: string
+                  name:
+                    type: string
+                  decimals:
+                    type: integer
+              balance:
+                type: string
+              balanceRaw:
+                type: string
+              priceUSD:
+                type: number
+              valueUSD:
+                type: number
+              isVaultSupported:
+                type: boolean
+        totalValueUSD:
+          type: number
+        positionCount:
+          type: integer
+        timestamp:
+          type: integer
+    PortfolioPosition:
+      type: object
+      properties:
+        token:
+          type: object
+          properties:
+            address:
+              type: string
+            symbol:
+              type: string
+            name:
+              type: string
+            decimals:
+              type: integer
+        balance:
+          type: string
+        balanceRaw:
+          type: string
+        priceUSD:
+          type: number
+        valueUSD:
+          type: number
+        isVaultSupported:
+          type: boolean
+    PortfolioHoldingsBreakdownResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+              address:
+                type: string
+              balance:
+                type: string
+              valueUSD:
+                type: number
+              percentage:
+                type: number
+        totalValueUSD:
+          type: number
+        timestamp:
+          type: integer
+    PortfolioPnlResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        period:
+          type: string
+        currentValue:
+          type: number
+        realizedPNL:
+          type: number
+        unrealizedPNL:
+          type: number
+        totalPNL:
+          type: number
+        pnlPercent:
+          type: number
+        totalBought:
+          type: number
+        totalSold:
+          type: number
+        tradeCount:
+          type: number
+        timestamp:
+          type: integer
+    VaultSwapTrade:
+      type: object
+      properties:
+        txHash:
+          type: string
+        blockNumber:
+          type: integer
+        timestamp:
+          type: integer
+        tokenIn:
+          type: object
+          additionalProperties: true
+        tokenOut:
+          type: object
+          additionalProperties: true
+        valueUSD:
+          type: number
+    PortfolioTradesResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        trades:
+          type: array
+          items:
+            type: object
+            properties:
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type: integer
+              tokenIn:
+                type: object
+                additionalProperties: true
+              tokenOut:
+                type: object
+                additionalProperties: true
+              valueUSD:
+                type: number
+        total:
+          type: integer
+        timestamp:
+          type: integer
+    PortfolioPerformanceResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        days:
+          type: integer
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              balance:
+                type: string
+        timestamp:
+          type: integer
+    PortfolioPositionDetailsResponse:
+      oneOf:
+        - type: object
+          properties:
+            address:
+              type: string
+            token:
+              type: string
+            hasPosition:
+              type: boolean
+              enum:
+                - false
+            timestamp:
+              type: integer
+        - type: object
+          properties:
+            address:
+              type: string
+            hasPosition:
+              type: boolean
+              enum:
+                - true
+            token:
+              type: object
+              additionalProperties: true
+            balance:
+              type: string
+            valueUSD:
+              type: number
+            currentPrice:
+              type: string
+            percentOfPortfolio:
+              type: number
+            recentTrades:
+              type: array
+              items:
+                type: object
+                properties:
+                  txHash:
+                    type: string
+                  blockNumber:
+                    type: integer
+                  timestamp:
+                    type: integer
+                  tokenIn:
+                    type: object
+                    additionalProperties: true
+                  tokenOut:
+                    type: object
+                    additionalProperties: true
+                  valueUSD:
+                    type: number
+            timestamp:
+              type: integer
+    PortfolioSummaryResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        positions:
+          type: array
+          items:
+            type: object
+            properties:
+              token:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  symbol:
+                    type: string
+                  name:
+                    type: string
+                  decimals:
+                    type: integer
+              balance:
+                type: string
+              balanceRaw:
+                type: string
+              priceUSD:
+                type: number
+              valueUSD:
+                type: number
+              isVaultSupported:
+                type: boolean
+        totalValueUSD:
+          type: number
+        pnl:
+          type: object
+          additionalProperties: true
+        recentTrades:
+          type: array
+          items:
+            type: object
+            properties:
+              txHash:
+                type: string
+              blockNumber:
+                type: integer
+              timestamp:
+                type: integer
+              tokenIn:
+                type: object
+                additionalProperties: true
+              tokenOut:
+                type: object
+                additionalProperties: true
+              valueUSD:
+                type: number
+        tradeCount:
+          type: integer
+        timestamp:
+          type: integer
+    PortfolioProfileResponse:
+      type: object
+      additionalProperties: true
+    PortfolioTransactionsResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        transactions:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    PortfolioTokenTransfersResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        transfers:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    PortfolioBalanceHistoryResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        history:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsLeaderboardResponse:
+      type: object
+      properties:
+        period:
+          type: string
+        sortBy:
+          type: string
+        leaderboard:
+          type: array
+          items:
+            type: object
+            properties:
+              rank:
+                type: integer
+              address:
+                type: string
+              tradeCount:
+                type: number
+              totalVolume:
+                type: number
+              totalProfit:
+                type: number
+              totalLoss:
+                type: number
+              netPNL:
+                type: number
+              avgTradeSize:
+                type: number
+              lastTrade:
+                type: object
+                nullable: true
+        totalTraders:
+          type: integer
+        error:
+          type: string
+        timestamp:
+          type: integer
+    AnalyticsLeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        address:
+          type: string
+        tradeCount:
+          type: number
+        totalVolume:
+          type: number
+        totalProfit:
+          type: number
+        totalLoss:
+          type: number
+        netPNL:
+          type: number
+        avgTradeSize:
+          type: number
+        lastTrade:
+          type: object
+          nullable: true
+    AnalyticsRecentSwapsResponse:
+      type: object
+      properties:
+        swaps:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsTotalVolumeResponse:
+      type: object
+      properties:
+        period:
+          type: string
+        totalVolume:
+          type: number
+        tradeCount:
+          type: number
+        uniqueTraders:
+          type: number
+        timestamp:
+          type: integer
+        error:
+          type: string
+    AnalyticsVolumeByTokenResponse:
+      type: object
+      properties:
+        period:
+          type: string
+        tokens:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              symbol:
+                type: string
+              volume:
+                type: number
+        timestamp:
+          type: integer
+        error:
+          type: string
+    AnalyticsVolumeSeriesResponse:
+      type: object
+      properties:
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: integer
+              volume:
+                type: number
+              trades:
+                type: number
+        period:
+          type: string
+        interval:
+          type: string
+        timestamp:
+          type: integer
+        error:
+          type: string
+    AnalyticsTradingMetricsResponse:
+      type: object
+      properties:
+        period:
+          type: string
+        volume:
+          type: object
+          additionalProperties: true
+        trades:
+          type: object
+          additionalProperties: true
+        traders:
+          type: object
+          additionalProperties: true
+        vault:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsTopPairsResponse:
+      type: object
+      properties:
+        period:
+          type: string
+        pairs:
+          type: array
+          items:
+            type: object
+            properties:
+              pair:
+                type: string
+              tokenIn:
+                type: object
+                additionalProperties: true
+              tokenOut:
+                type: object
+                additionalProperties: true
+              volume:
+                type: number
+              trades:
+                type: number
+        timestamp:
+          type: integer
+        error:
+          type: string
+    AnalyticsOverviewResponse:
+      type: object
+      properties:
+        volume:
+          type: object
+          additionalProperties: true
+        metrics:
+          type: object
+          additionalProperties: true
+        topPairs:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        recentSwaps:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsNetworkStatsResponse:
+      type: object
+      properties:
+        stats:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsNetworkTransactionsResponse:
+      type: object
+      properties:
+        transactions:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsNetworkBlocksResponse:
+      type: object
+      properties:
+        blocks:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsNetworkChartResponse:
+      type: object
+      properties:
+        chart:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsTokenResponse:
+      type: object
+      properties:
+        address:
+          type: string
+        token:
+          type: object
+          additionalProperties: true
+        transfers:
+          type: object
+          additionalProperties: true
+        holders:
+          type: object
+          additionalProperties: true
+        counters:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsTokensResponse:
+      type: object
+      properties:
+        tokens:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsTxResponse:
+      type: object
+      properties:
+        hash:
+          type: string
+        transaction:
+          type: object
+          additionalProperties: true
+        summary:
+          type: object
+          additionalProperties: true
+        tokenTransfers:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsIndexerStatusResponse:
+      type: object
+      properties:
+        indexer:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+    AnalyticsSearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        results:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+x-ext-urls: {}
