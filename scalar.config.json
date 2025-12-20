@@ -1,10 +1,11 @@
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
+  "scalar": "2.0.0",
   "siteConfig": {
-    "theme": "black",
-    "logo": {
-      "darkMode": "https://paxscan.paxeer.app/assets/configs/network_logo.png",
-      "lightMode": "https://paxscan.paxeer.app/assets/configs/network_logo.png"
+  "theme": "deep-space",
+  "logo": {
+      "darkMode": "https://scalar.com/logo-light.svg",
+      "lightMode": "https://scalar.com/logo-dark.svg"
     }
   },
   "guides": [
