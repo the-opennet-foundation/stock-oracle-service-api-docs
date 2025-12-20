@@ -54,7 +54,7 @@
     },
     {
       "name": "Stock Engine API Reference",
-      "path": "./docs/stocks-engine-api/stock-oracle-service-api.yaml"
+      "path": "./docs/stocks-engine-api/openapi.yaml"
     }
   ]
 }
