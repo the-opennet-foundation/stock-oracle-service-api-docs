@@ -3,7 +3,9 @@ title: "Paxeer Network Documentation"
 description: "Build on a high-performance, developer-friendly blockchain platform for the next generation of decentralized applications"
 ---
 
-> **Note:** Chain ID: 229 | Currency: PAX | Version: v1.0.0
+:::scalar-callout{type="info"}
+**Note:** Chain ID: **229** · Currency: **PAX** · Version: **v1.0.0**
+:::
 
 ## Welcome to Paxeer Network
 
@@ -22,7 +24,9 @@ A high-performance, developer-friendly blockchain platform for the next generati
 
 ## Revolutionary Core Infrastructure
 
-> ⚠️ **Pioneering Independence:** Paxeer Network is building the **first EVM L2 to transition into EVM-compatibility without EVM-dependency**. We maintain full compatibility while creating a fully self-sustainable ecosystem.
+:::scalar-callout{type="warning"}
+**Pioneering Independence:** Paxeer Network is building the **first EVM L2 to transition into EVM-compatibility without EVM-dependency**. We maintain full compatibility while creating a fully self-sustainable ecosystem.
+:::
 
 Paxeer Network is built on our own native infrastructure, designed for independence and performance:
 
@@ -49,6 +53,51 @@ Build a complete ecosystem without external dependencies:
 - **Custom gas model:** Optimized for our architecture
 - **Independent evolution:** No reliance on Ethereum upgrades
 
+### Performance Benefits
+
+Our native infrastructure provides significant advantages:
+
+- **10,000+ TPS** per core (vs ~15 TPS for EVM)
+- **<1ms latency** for simple contract calls
+- **Register-based architecture** eliminates stack overhead
+- **Optimized gas costs** for common operations
+
+## Network Details
+
+Connect to Paxeer Network with these details:
+
+```json Network Configuration
+{
+  "networkName": "Paxeer Network",
+  "rpcUrl": "https://public-rpc.paxeer.app/rpc",
+  "chainId": 229,
+  "currencySymbol": "PAX",
+  "blockExplorer": "https://paxscan.paxeer.app"
+}
+```
+
+- **Add to MetaMask:** Follow our guide to add Paxeer Network to your wallet — [/quickstart#add-paxeer-network](/quickstart#add-paxeer-network)
+
+## Ecosystem Protocols
+
+Explore the powerful protocols built on Paxeer Network:
+
+- **PaxDex Protocol:** Decentralized exchange with 0.3% swap fees and real-time price feeds — [/paxdex](/paxdex)
+- **Lending Protocol:** Lend and borrow assets with dynamic APY and credit scoring — [/lending](/lending)
+- **ChainFlow:** Decentralized prop trading platform with on-chain evaluation and automated profit distribution — [/chainflow](/chainflow)
+- **Computable Token Machine (CTM):** Revolutionary token standard where tokens are execution environments — [/ctm](/ctm)
+- **BlockScout API:** Query transactions, blocks, addresses, and tokens — [/blockscout-api](/blockscout-api)
+
+## Developer Resources
+
+- **RPC Tester:** Test Paxeer Network RPC methods in real-time — [/rpc](/rpc)
+- **Code Examples:** Integration guides and code samples — [/examples](/examples)
+- **SDKs & Tools:** Recommended tools and libraries for development — [/tools](/tools)
+- **API Explorer:** Interactive API testing interface — [/api-explorer](/api-explorer)
+
+## Need Help?
+
+- **Join Our Community:** Get support and connect with other developers building on Paxeer Network — <https://paxeer.app/community>
 ### Performance Benefits
 
 Our native infrastructure provides significant advantages:
