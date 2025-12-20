@@ -41,6 +41,31 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Protocol Architecture",
+      "sidebar": [
+        {
+          "name": "Architecture",
+          "type": "folder",
+          "icon": "cube",
+          "children": [
+            { "path": "docs/guides/protocol-architecture/architecture-overview.md", "type": "page", "name": "Overview" },
+            { "path": "docs/guides/protocol-architecture/execution-dual-vm.md", "type": "page", "name": "Dual-VM Execution" },
+            { "path": "docs/guides/protocol-architecture/capital-layer.md", "type": "page", "name": "Capital Layer" }
+          ]
+        },
+        {
+          "name": "Consensus & Networking",
+          "type": "folder",
+          "icon": "share-2",
+          "children": [
+            { "path": "docs/guides/protocol-architecture/consensus.md", "type": "page", "name": "Consensus (Clique PoA)" },
+            { "path": "docs/guides/protocol-architecture/p2p-networking.md", "type": "page", "name": "P2P Networking" },
+            { "path": "docs/guides/protocol-architecture/rpc-and-interfaces.md", "type": "page", "name": "RPC & Interfaces" }
+          ]
+        }
+      ]
     }
   ],
   "references": [
