@@ -1,10 +1,10 @@
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
   "siteConfig": {
-    "theme": "purple",
+    "theme": "black",
     "logo": {
-      "darkMode": "https://scalar.com/logo-light.svg",
-      "lightMode": "https://scalar.com/logo-dark.svg"
+      "darkMode": "https://paxscan.paxeer.app/assets/configs/network_logo.png",
+      "lightMode": "https://paxscan.paxeer.app/assets/configs/network_logo.png"
     }
   },
   "guides": [
@@ -58,42 +58,6 @@
     }
   ],
   "references": [
-    {
-      "name": "Paxeer Block API",
-      "path": "./docs/paxeer/block.yaml"
-    },
-    {
-      "name": "Paxeer State API",
-      "path": "./docs/paxeer/state.yaml"
-    },
-    {
-      "name": "Paxeer Transaction API",
-      "path": "./docs/paxeer/transaction.yaml"
-    },
-    {
-      "name": "Paxeer Execute API",
-      "path": "./docs/paxeer/execute.yaml"
-    },
-    {
-      "name": "Paxeer Submit API",
-      "path": "./docs/paxeer/submit.yaml"
-    },
-    {
-      "name": "Paxeer Filter API",
-      "path": "./docs/paxeer/filter.yaml"
-    },
-    {
-      "name": "Paxeer Fee Market API",
-      "path": "./docs/paxeer/fee_market.yaml"
-    },
-    {
-      "name": "Paxeer Sign API",
-      "path": "./docs/paxeer/sign.yaml"
-    },
-    {
-      "name": "Paxeer Client API",
-      "path": "./docs/paxeer/client.yaml"
-    },
     {
       "name": "Sidiora Exchange API Reference",
       "path": "./docs/sidiora-api/openapi.yaml"
