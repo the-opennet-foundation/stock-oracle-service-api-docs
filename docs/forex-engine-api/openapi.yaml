@@ -1,0 +1,4838 @@
+openapi: 3.1.0
+info:
+  title: Fx Oracle Service API
+  description: HTTP API for prices, enriched market data, positions, orders,
+    collateral, stats, and websocket streaming used by FxOracleClient.
+  version: 1.0.0
+servers:
+  - url: https://api.fx-oracle.example
+    description: Production
+paths:
+  /health:
+    get:
+      summary: Service health
+      responses:
+        "200":
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                      - error
+                  network:
+                    type: string
+                  lastUpdateTs:
+                    type:
+                      - number
+                      - "null"
+                  trackedSymbols:
+                    type: array
+                    items:
+                      type: string
+                  feedCount:
+                    type: integer
+                required:
+                  - status
+                  - network
+                  - trackedSymbols
+                  - feedCount
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_health()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getHealth();
+
+              console.log(result);
+            }
+
+
+            run();
+  /prices:
+    get:
+      summary: All current prices
+      responses:
+        "200":
+          description: Prices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timestamp:
+                    type:
+                      - string
+                      - "null"
+                  prices:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        marketId:
+                          type: string
+                        rawPrice:
+                          type: string
+                          description: Price scaled (typically 18 decimals)
+                        publishTime:
+                          type: string
+                      required:
+                        - marketId
+                        - rawPrice
+                        - publishTime
+                required:
+                  - prices
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_prices()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getPrices();
+
+              console.log(result);
+            }
+
+
+            run();
+  /prices/{symbol}:
+    get:
+      summary: Price for a symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Symbol like EUR-USD or EUR/USD
+      responses:
+        "200":
+          description: Symbol price
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  marketId:
+                    type: string
+                  rawPrice:
+                    type: string
+                  publishTime:
+                    type: string
+                required:
+                  - symbol
+                  - marketId
+                  - rawPrice
+                  - publishTime
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_prices_symbol_(symbol="<value>")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getPricesSymbol({
+                symbol: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /enriched:
+    get:
+      summary: Prices with enriched market data
+      responses:
+        "200":
+          description: Enriched prices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timestamp:
+                    type:
+                      - string
+                      - "null"
+                  prices:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        marketId:
+                          type: string
+                        rawPrice:
+                          type: string
+                          description: Price scaled (typically 18 decimals)
+                        publishTime:
+                          type: string
+                      required:
+                        - marketId
+                        - rawPrice
+                        - publishTime
+                  enriched:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        candlestick:
+                          nullable: true
+                          type: object
+                          properties:
+                            timestamp:
+                              type: number
+                            open:
+                              type: number
+                            high:
+                              type: number
+                            low:
+                              type: number
+                            close:
+                              type: number
+                            volume:
+                              type: number
+                            volumeWeighted:
+                              type: number
+                            percentChange:
+                              type: string
+                            priceChangeAbsolute:
+                              type: number
+                          required:
+                            - timestamp
+                            - open
+                            - high
+                            - low
+                            - close
+                            - volume
+                            - volumeWeighted
+                            - percentChange
+                            - priceChangeAbsolute
+                        trade:
+                          nullable: true
+                          type: object
+                          properties:
+                            timestamp:
+                              type: number
+                            price:
+                              type: number
+                            volume:
+                              type: number
+                            volumeWeighted:
+                              type: number
+                            direction:
+                              type: number
+                          required:
+                            - timestamp
+                            - price
+                            - volume
+                            - volumeWeighted
+                            - direction
+                        depth:
+                          nullable: true
+                          type: object
+                          properties:
+                            timestamp:
+                              type: number
+                            ask:
+                              type: object
+                              properties:
+                                price:
+                                  type: number
+                                volume:
+                                  type: number
+                              required:
+                                - price
+                                - volume
+                            bid:
+                              type: object
+                              properties:
+                                price:
+                                  type: number
+                                volume:
+                                  type: number
+                              required:
+                                - price
+                                - volume
+                            spread:
+                              type: number
+                          required:
+                            - timestamp
+                            - ask
+                            - bid
+                            - spread
+                        error:
+                          type:
+                            - string
+                            - "null"
+                      required:
+                        - symbol
+                required:
+                  - prices
+                  - enriched
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_enriched()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getEnriched();
+
+              console.log(result);
+            }
+
+
+            run();
+  /enriched/{symbol}:
+    get:
+      summary: Enriched data for a symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Symbol enriched data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  price:
+                    type: object
+                    properties:
+                      marketId:
+                        type: string
+                      rawPrice:
+                        type: string
+                        description: Price scaled (typically 18 decimals)
+                      publishTime:
+                        type: string
+                    required:
+                      - marketId
+                      - rawPrice
+                      - publishTime
+                  enriched:
+                    nullable: true
+                    type: object
+                    properties:
+                      symbol:
+                        type: string
+                      candlestick:
+                        nullable: true
+                        type: object
+                        properties:
+                          timestamp:
+                            type: number
+                          open:
+                            type: number
+                          high:
+                            type: number
+                          low:
+                            type: number
+                          close:
+                            type: number
+                          volume:
+                            type: number
+                          volumeWeighted:
+                            type: number
+                          percentChange:
+                            type: string
+                          priceChangeAbsolute:
+                            type: number
+                        required:
+                          - timestamp
+                          - open
+                          - high
+                          - low
+                          - close
+                          - volume
+                          - volumeWeighted
+                          - percentChange
+                          - priceChangeAbsolute
+                      trade:
+                        nullable: true
+                        type: object
+                        properties:
+                          timestamp:
+                            type: number
+                          price:
+                            type: number
+                          volume:
+                            type: number
+                          volumeWeighted:
+                            type: number
+                          direction:
+                            type: number
+                        required:
+                          - timestamp
+                          - price
+                          - volume
+                          - volumeWeighted
+                          - direction
+                      depth:
+                        nullable: true
+                        type: object
+                        properties:
+                          timestamp:
+                            type: number
+                          ask:
+                            type: object
+                            properties:
+                              price:
+                                type: number
+                              volume:
+                                type: number
+                            required:
+                              - price
+                              - volume
+                          bid:
+                            type: object
+                            properties:
+                              price:
+                                type: number
+                              volume:
+                                type: number
+                            required:
+                              - price
+                              - volume
+                          spread:
+                            type: number
+                        required:
+                          - timestamp
+                          - ask
+                          - bid
+                          - spread
+                      error:
+                        type:
+                          - string
+                          - "null"
+                    required:
+                      - symbol
+                required:
+                  - symbol
+                  - price
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_enriched_symbol_(symbol="<value>")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getEnrichedSymbol({
+                symbol: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /market-data/{symbol}:
+    get:
+      summary: Real-time market data for a symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  price:
+                    nullable: true
+                    type: object
+                    properties:
+                      marketId:
+                        type: string
+                      rawPrice:
+                        type: string
+                        description: Price scaled (typically 18 decimals)
+                      publishTime:
+                        type: string
+                    required:
+                      - marketId
+                      - rawPrice
+                      - publishTime
+                  candlestick:
+                    nullable: true
+                    type: object
+                    properties:
+                      timestamp:
+                        type: number
+                      open:
+                        type: number
+                      high:
+                        type: number
+                      low:
+                        type: number
+                      close:
+                        type: number
+                      volume:
+                        type: number
+                      volumeWeighted:
+                        type: number
+                      percentChange:
+                        type: string
+                      priceChangeAbsolute:
+                        type: number
+                    required:
+                      - timestamp
+                      - open
+                      - high
+                      - low
+                      - close
+                      - volume
+                      - volumeWeighted
+                      - percentChange
+                      - priceChangeAbsolute
+                  trade:
+                    nullable: true
+                    type: object
+                    properties:
+                      timestamp:
+                        type: number
+                      price:
+                        type: number
+                      volume:
+                        type: number
+                      volumeWeighted:
+                        type: number
+                      direction:
+                        type: number
+                    required:
+                      - timestamp
+                      - price
+                      - volume
+                      - volumeWeighted
+                      - direction
+                  depth:
+                    nullable: true
+                    type: object
+                    properties:
+                      timestamp:
+                        type: number
+                      ask:
+                        type: object
+                        properties:
+                          price:
+                            type: number
+                          volume:
+                            type: number
+                        required:
+                          - price
+                          - volume
+                      bid:
+                        type: object
+                        properties:
+                          price:
+                            type: number
+                          volume:
+                            type: number
+                        required:
+                          - price
+                          - volume
+                      spread:
+                        type: number
+                    required:
+                      - timestamp
+                      - ask
+                      - bid
+                      - spread
+                  error:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - symbol
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_market_data_symbol_(symbol="<value>")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getMarketDataSymbol({
+                symbol: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /market-data/batch:
+    post:
+      summary: Batch market data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbols:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - symbols
+      responses:
+        "200":
+          description: Batch market data
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    symbol:
+                      type: string
+                    price:
+                      nullable: true
+                      type: object
+                      properties:
+                        marketId:
+                          type: string
+                        rawPrice:
+                          type: string
+                          description: Price scaled (typically 18 decimals)
+                        publishTime:
+                          type: string
+                      required:
+                        - marketId
+                        - rawPrice
+                        - publishTime
+                    candlestick:
+                      nullable: true
+                      type: object
+                      properties:
+                        timestamp:
+                          type: number
+                        open:
+                          type: number
+                        high:
+                          type: number
+                        low:
+                          type: number
+                        close:
+                          type: number
+                        volume:
+                          type: number
+                        volumeWeighted:
+                          type: number
+                        percentChange:
+                          type: string
+                        priceChangeAbsolute:
+                          type: number
+                      required:
+                        - timestamp
+                        - open
+                        - high
+                        - low
+                        - close
+                        - volume
+                        - volumeWeighted
+                        - percentChange
+                        - priceChangeAbsolute
+                    trade:
+                      nullable: true
+                      type: object
+                      properties:
+                        timestamp:
+                          type: number
+                        price:
+                          type: number
+                        volume:
+                          type: number
+                        volumeWeighted:
+                          type: number
+                        direction:
+                          type: number
+                      required:
+                        - timestamp
+                        - price
+                        - volume
+                        - volumeWeighted
+                        - direction
+                    depth:
+                      nullable: true
+                      type: object
+                      properties:
+                        timestamp:
+                          type: number
+                        ask:
+                          type: object
+                          properties:
+                            price:
+                              type: number
+                            volume:
+                              type: number
+                          required:
+                            - price
+                            - volume
+                        bid:
+                          type: object
+                          properties:
+                            price:
+                              type: number
+                            volume:
+                              type: number
+                          required:
+                            - price
+                            - volume
+                        spread:
+                          type: number
+                      required:
+                        - timestamp
+                        - ask
+                        - bid
+                        - spread
+                    error:
+                      type:
+                        - string
+                        - "null"
+                  required:
+                    - symbol
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.post_market_data_batch(symbols=[
+                    "<value 1>",
+                    "<value 2>",
+                    "<value 3>",
+                ])
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.postMarketDataBatch({
+                symbols: [
+                  "<value 1>",
+                  "<value 2>",
+                  "<value 3>",
+                ],
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/positions/open:
+    get:
+      summary: Open positions
+      parameters:
+        - name: account
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Open positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  positions:
+                    type: array
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                            account:
+                              type: string
+                            market_id:
+                              type: string
+                            symbol:
+                              type: string
+                            is_long:
+                              type: integer
+                            size_base:
+                              type: string
+                            entry_price:
+                              type: string
+                            margin_usd:
+                              type: string
+                            leverage:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - open
+                                - closed
+                            opened_at:
+                              type: number
+                            opened_tx:
+                              type: string
+                            opened_block:
+                              type: integer
+                            closed_at:
+                              type:
+                                - number
+                                - "null"
+                            closed_tx:
+                              type:
+                                - string
+                                - "null"
+                            closed_block:
+                              type:
+                                - integer
+                                - "null"
+                            exit_price:
+                              type:
+                                - string
+                                - "null"
+                            realized_pnl:
+                              type:
+                                - string
+                                - "null"
+                            created_at:
+                              type: number
+                            updated_at:
+                              type: number
+                          required:
+                            - id
+                            - account
+                            - market_id
+                            - symbol
+                            - is_long
+                            - size_base
+                            - entry_price
+                            - margin_usd
+                            - leverage
+                            - status
+                            - opened_at
+                            - opened_tx
+                            - opened_block
+                            - created_at
+                            - updated_at
+                        - allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                account:
+                                  type: string
+                                market_id:
+                                  type: string
+                                symbol:
+                                  type: string
+                                is_long:
+                                  type: integer
+                                size_base:
+                                  type: string
+                                entry_price:
+                                  type: string
+                                margin_usd:
+                                  type: string
+                                leverage:
+                                  type: string
+                                status:
+                                  type: string
+                                  enum:
+                                    - open
+                                    - closed
+                                opened_at:
+                                  type: number
+                                opened_tx:
+                                  type: string
+                                opened_block:
+                                  type: integer
+                                closed_at:
+                                  type:
+                                    - number
+                                    - "null"
+                                closed_tx:
+                                  type:
+                                    - string
+                                    - "null"
+                                closed_block:
+                                  type:
+                                    - integer
+                                    - "null"
+                                exit_price:
+                                  type:
+                                    - string
+                                    - "null"
+                                realized_pnl:
+                                  type:
+                                    - string
+                                    - "null"
+                                created_at:
+                                  type: number
+                                updated_at:
+                                  type: number
+                              required:
+                                - id
+                                - account
+                                - market_id
+                                - symbol
+                                - is_long
+                                - size_base
+                                - entry_price
+                                - margin_usd
+                                - leverage
+                                - status
+                                - opened_at
+                                - opened_tx
+                                - opened_block
+                                - created_at
+                                - updated_at
+                            - type: object
+                              properties:
+                                currentPrice:
+                                  type: string
+                                currentPriceFormatted:
+                                  type: string
+                                pnlUsd:
+                                  type: string
+                                pnlUsdFormatted:
+                                  type: string
+                                pnlPercent:
+                                  type: number
+                                isProfit:
+                                  type: boolean
+                                notionalUsd:
+                                  type: string
+                                notionalUsdFormatted:
+                                  type: string
+                                equityUsd:
+                                  type: string
+                                equityUsdFormatted:
+                                  type: string
+                                marginRatio:
+                                  type: number
+                                liquidationPrice:
+                                  type: string
+                                liquidationPriceFormatted:
+                                  type: string
+                                maintenanceMarginUsd:
+                                  type: string
+                required:
+                  - count
+                  - positions
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_positions_open()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiPositionsOpen({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/positions/account/{address}:
+    get:
+      summary: Positions by account
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - open
+              - closed
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    type: string
+                  count:
+                    type: integer
+                  positions:
+                    type: array
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                            account:
+                              type: string
+                            market_id:
+                              type: string
+                            symbol:
+                              type: string
+                            is_long:
+                              type: integer
+                            size_base:
+                              type: string
+                            entry_price:
+                              type: string
+                            margin_usd:
+                              type: string
+                            leverage:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - open
+                                - closed
+                            opened_at:
+                              type: number
+                            opened_tx:
+                              type: string
+                            opened_block:
+                              type: integer
+                            closed_at:
+                              type:
+                                - number
+                                - "null"
+                            closed_tx:
+                              type:
+                                - string
+                                - "null"
+                            closed_block:
+                              type:
+                                - integer
+                                - "null"
+                            exit_price:
+                              type:
+                                - string
+                                - "null"
+                            realized_pnl:
+                              type:
+                                - string
+                                - "null"
+                            created_at:
+                              type: number
+                            updated_at:
+                              type: number
+                          required:
+                            - id
+                            - account
+                            - market_id
+                            - symbol
+                            - is_long
+                            - size_base
+                            - entry_price
+                            - margin_usd
+                            - leverage
+                            - status
+                            - opened_at
+                            - opened_tx
+                            - opened_block
+                            - created_at
+                            - updated_at
+                        - allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                account:
+                                  type: string
+                                market_id:
+                                  type: string
+                                symbol:
+                                  type: string
+                                is_long:
+                                  type: integer
+                                size_base:
+                                  type: string
+                                entry_price:
+                                  type: string
+                                margin_usd:
+                                  type: string
+                                leverage:
+                                  type: string
+                                status:
+                                  type: string
+                                  enum:
+                                    - open
+                                    - closed
+                                opened_at:
+                                  type: number
+                                opened_tx:
+                                  type: string
+                                opened_block:
+                                  type: integer
+                                closed_at:
+                                  type:
+                                    - number
+                                    - "null"
+                                closed_tx:
+                                  type:
+                                    - string
+                                    - "null"
+                                closed_block:
+                                  type:
+                                    - integer
+                                    - "null"
+                                exit_price:
+                                  type:
+                                    - string
+                                    - "null"
+                                realized_pnl:
+                                  type:
+                                    - string
+                                    - "null"
+                                created_at:
+                                  type: number
+                                updated_at:
+                                  type: number
+                              required:
+                                - id
+                                - account
+                                - market_id
+                                - symbol
+                                - is_long
+                                - size_base
+                                - entry_price
+                                - margin_usd
+                                - leverage
+                                - status
+                                - opened_at
+                                - opened_tx
+                                - opened_block
+                                - created_at
+                                - updated_at
+                            - type: object
+                              properties:
+                                currentPrice:
+                                  type: string
+                                currentPriceFormatted:
+                                  type: string
+                                pnlUsd:
+                                  type: string
+                                pnlUsdFormatted:
+                                  type: string
+                                pnlPercent:
+                                  type: number
+                                isProfit:
+                                  type: boolean
+                                notionalUsd:
+                                  type: string
+                                notionalUsdFormatted:
+                                  type: string
+                                equityUsd:
+                                  type: string
+                                equityUsdFormatted:
+                                  type: string
+                                marginRatio:
+                                  type: number
+                                liquidationPrice:
+                                  type: string
+                                liquidationPriceFormatted:
+                                  type: string
+                                maintenanceMarginUsd:
+                                  type: string
+                required:
+                  - account
+                  - count
+                  - positions
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_positions_account_address_(address="76901 Jaclyn Flats")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiPositionsAccountAddress({
+                address: "76901 Jaclyn Flats",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/positions/market/{marketId}:
+    get:
+      summary: Positions by market
+      parameters:
+        - name: marketId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - open
+              - closed
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Market positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marketId:
+                    type: string
+                  count:
+                    type: integer
+                  positions:
+                    type: array
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                            account:
+                              type: string
+                            market_id:
+                              type: string
+                            symbol:
+                              type: string
+                            is_long:
+                              type: integer
+                            size_base:
+                              type: string
+                            entry_price:
+                              type: string
+                            margin_usd:
+                              type: string
+                            leverage:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - open
+                                - closed
+                            opened_at:
+                              type: number
+                            opened_tx:
+                              type: string
+                            opened_block:
+                              type: integer
+                            closed_at:
+                              type:
+                                - number
+                                - "null"
+                            closed_tx:
+                              type:
+                                - string
+                                - "null"
+                            closed_block:
+                              type:
+                                - integer
+                                - "null"
+                            exit_price:
+                              type:
+                                - string
+                                - "null"
+                            realized_pnl:
+                              type:
+                                - string
+                                - "null"
+                            created_at:
+                              type: number
+                            updated_at:
+                              type: number
+                          required:
+                            - id
+                            - account
+                            - market_id
+                            - symbol
+                            - is_long
+                            - size_base
+                            - entry_price
+                            - margin_usd
+                            - leverage
+                            - status
+                            - opened_at
+                            - opened_tx
+                            - opened_block
+                            - created_at
+                            - updated_at
+                        - allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                account:
+                                  type: string
+                                market_id:
+                                  type: string
+                                symbol:
+                                  type: string
+                                is_long:
+                                  type: integer
+                                size_base:
+                                  type: string
+                                entry_price:
+                                  type: string
+                                margin_usd:
+                                  type: string
+                                leverage:
+                                  type: string
+                                status:
+                                  type: string
+                                  enum:
+                                    - open
+                                    - closed
+                                opened_at:
+                                  type: number
+                                opened_tx:
+                                  type: string
+                                opened_block:
+                                  type: integer
+                                closed_at:
+                                  type:
+                                    - number
+                                    - "null"
+                                closed_tx:
+                                  type:
+                                    - string
+                                    - "null"
+                                closed_block:
+                                  type:
+                                    - integer
+                                    - "null"
+                                exit_price:
+                                  type:
+                                    - string
+                                    - "null"
+                                realized_pnl:
+                                  type:
+                                    - string
+                                    - "null"
+                                created_at:
+                                  type: number
+                                updated_at:
+                                  type: number
+                              required:
+                                - id
+                                - account
+                                - market_id
+                                - symbol
+                                - is_long
+                                - size_base
+                                - entry_price
+                                - margin_usd
+                                - leverage
+                                - status
+                                - opened_at
+                                - opened_tx
+                                - opened_block
+                                - created_at
+                                - updated_at
+                            - type: object
+                              properties:
+                                currentPrice:
+                                  type: string
+                                currentPriceFormatted:
+                                  type: string
+                                pnlUsd:
+                                  type: string
+                                pnlUsdFormatted:
+                                  type: string
+                                pnlPercent:
+                                  type: number
+                                isProfit:
+                                  type: boolean
+                                notionalUsd:
+                                  type: string
+                                notionalUsdFormatted:
+                                  type: string
+                                equityUsd:
+                                  type: string
+                                equityUsdFormatted:
+                                  type: string
+                                marginRatio:
+                                  type: number
+                                liquidationPrice:
+                                  type: string
+                                liquidationPriceFormatted:
+                                  type: string
+                                maintenanceMarginUsd:
+                                  type: string
+                required:
+                  - marketId
+                  - count
+                  - positions
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_positions_market_market_id_(market_id="<id>")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiPositionsMarketMarketId({
+                marketId: "<id>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/orders/recent:
+    get:
+      summary: Recent orders
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recent orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        event_type:
+                          type: string
+                          enum:
+                            - open
+                            - close
+                            - presigned_close
+                        account:
+                          type: string
+                        market_id:
+                          type: string
+                        symbol:
+                          type: string
+                        is_long:
+                          type:
+                            - integer
+                            - "null"
+                        size_base:
+                          type:
+                            - string
+                            - "null"
+                        margin_usd:
+                          type:
+                            - string
+                            - "null"
+                        leverage:
+                          type:
+                            - string
+                            - "null"
+                        pnl_usd:
+                          type:
+                            - string
+                            - "null"
+                        tx_hash:
+                          type: string
+                        block_number:
+                          type: integer
+                        block_timestamp:
+                          type: number
+                        log_index:
+                          type: integer
+                        raw_data:
+                          type:
+                            - string
+                            - "null"
+                        created_at:
+                          type: number
+                      required:
+                        - id
+                        - event_type
+                        - account
+                        - market_id
+                        - symbol
+                        - tx_hash
+                        - block_number
+                        - block_timestamp
+                        - log_index
+                        - created_at
+                required:
+                  - count
+                  - orders
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_orders_recent()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiOrdersRecent({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/orders/account/{address}:
+    get:
+      summary: Orders by account
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    type: string
+                  count:
+                    type: integer
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        event_type:
+                          type: string
+                          enum:
+                            - open
+                            - close
+                            - presigned_close
+                        account:
+                          type: string
+                        market_id:
+                          type: string
+                        symbol:
+                          type: string
+                        is_long:
+                          type:
+                            - integer
+                            - "null"
+                        size_base:
+                          type:
+                            - string
+                            - "null"
+                        margin_usd:
+                          type:
+                            - string
+                            - "null"
+                        leverage:
+                          type:
+                            - string
+                            - "null"
+                        pnl_usd:
+                          type:
+                            - string
+                            - "null"
+                        tx_hash:
+                          type: string
+                        block_number:
+                          type: integer
+                        block_timestamp:
+                          type: number
+                        log_index:
+                          type: integer
+                        raw_data:
+                          type:
+                            - string
+                            - "null"
+                        created_at:
+                          type: number
+                      required:
+                        - id
+                        - event_type
+                        - account
+                        - market_id
+                        - symbol
+                        - tx_hash
+                        - block_number
+                        - block_timestamp
+                        - log_index
+                        - created_at
+                required:
+                  - account
+                  - count
+                  - orders
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_orders_account_address_(address="7859 Common Lane")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiOrdersAccountAddress({
+                address: "7859 Common Lane",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/collateral/account/{address}:
+    get:
+      summary: Collateral events for account
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Collateral events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    type: string
+                  count:
+                    type: integer
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        event_type:
+                          type: string
+                          enum:
+                            - deposit
+                            - withdraw
+                        account:
+                          type: string
+                        token:
+                          type: string
+                        amount:
+                          type: string
+                        tx_hash:
+                          type: string
+                        block_number:
+                          type: integer
+                        block_timestamp:
+                          type: number
+                        log_index:
+                          type: integer
+                        created_at:
+                          type: number
+                      required:
+                        - id
+                        - event_type
+                        - account
+                        - token
+                        - amount
+                        - tx_hash
+                        - block_number
+                        - block_timestamp
+                        - log_index
+                        - created_at
+                required:
+                  - account
+                  - count
+                  - events
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_collateral_account_address_(address="65383 Brandt Ways")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiCollateralAccountAddress({
+                address: "65383 Brandt Ways",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/stats/account/{address}:
+    get:
+      summary: Account statistics
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Account stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    type: string
+                  hasTraded:
+                    type: boolean
+                  stats:
+                    anyOf:
+                      - allOf:
+                          - type: object
+                            properties:
+                              account:
+                                type: string
+                              total_trades:
+                                type: integer
+                              winning_trades:
+                                type: integer
+                              losing_trades:
+                                type: integer
+                              total_volume_usd:
+                                type: string
+                              total_pnl_usd:
+                                type: string
+                              best_trade_pnl:
+                                type: string
+                              worst_trade_pnl:
+                                type: string
+                              avg_leverage:
+                                type: string
+                              avg_hold_time_seconds:
+                                type: number
+                              first_trade_at:
+                                type:
+                                  - number
+                                  - "null"
+                              last_trade_at:
+                                type:
+                                  - number
+                                  - "null"
+                              updated_at:
+                                type: number
+                            required:
+                              - account
+                              - total_trades
+                              - winning_trades
+                              - losing_trades
+                              - total_volume_usd
+                              - total_pnl_usd
+                              - best_trade_pnl
+                              - worst_trade_pnl
+                              - avg_leverage
+                              - avg_hold_time_seconds
+                              - updated_at
+                          - type: object
+                            properties:
+                              winRate:
+                                type: string
+                              totalTrades:
+                                type: integer
+                              winningTrades:
+                                type: integer
+                              losingTrades:
+                                type: integer
+                              totalPnlFormatted:
+                                type: string
+                              totalVolumeFormatted:
+                                type: string
+                              roi:
+                                type: string
+                              avgHoldTimeFormatted:
+                                type: string
+                            required:
+                              - winRate
+                              - totalTrades
+                              - winningTrades
+                              - losingTrades
+                              - totalPnlFormatted
+                              - totalVolumeFormatted
+                              - roi
+                              - avgHoldTimeFormatted
+                      - type: "null"
+                required:
+                  - account
+                  - hasTraded
+                  - stats
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_stats_account_address_(address="80371 Corwin Port")
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiStatsAccountAddress({
+                address: "80371 Corwin Port",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/leaderboard:
+    get:
+      summary: Trader leaderboard
+      parameters:
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum:
+              - total_pnl_usd
+              - total_trades
+              - total_volume_usd
+              - winning_trades
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  sortBy:
+                    type: string
+                  leaderboard:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank:
+                          type: integer
+                        account:
+                          type: string
+                        winRate:
+                          type: string
+                        totalTrades:
+                          type: integer
+                        winningTrades:
+                          type: integer
+                        losingTrades:
+                          type: integer
+                        totalPnlFormatted:
+                          type: string
+                        totalVolumeFormatted:
+                          type: string
+                        roi:
+                          type: string
+                        avgHoldTimeFormatted:
+                          type: string
+                        totalPnlUsd:
+                          type: string
+                        totalVolumeUsd:
+                          type: string
+                      required:
+                        - rank
+                        - account
+                        - winRate
+                        - totalTrades
+                        - winningTrades
+                        - losingTrades
+                        - totalPnlFormatted
+                        - totalVolumeFormatted
+                        - roi
+                        - avgHoldTimeFormatted
+                        - totalPnlUsd
+                        - totalVolumeUsd
+                required:
+                  - count
+                  - sortBy
+                  - leaderboard
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_leaderboard()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiLeaderboard({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/stats/markets:
+    get:
+      summary: Market stats
+      responses:
+        "200":
+          description: Market stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        market_id:
+                          type: string
+                        symbol:
+                          type: string
+                        total_long_positions:
+                          type: integer
+                        total_short_positions:
+                          type: integer
+                        open_long_positions:
+                          type: integer
+                        open_short_positions:
+                          type: integer
+                        total_volume_usd:
+                          type: string
+                        total_long_pnl:
+                          type: string
+                        total_short_pnl:
+                          type: string
+                        updated_at:
+                          type: number
+                        totalVolumeFormatted:
+                          type: string
+                        totalLongPnlFormatted:
+                          type: string
+                        totalShortPnlFormatted:
+                          type: string
+                      required:
+                        - market_id
+                        - symbol
+                        - total_long_positions
+                        - total_short_positions
+                        - open_long_positions
+                        - open_short_positions
+                        - total_volume_usd
+                        - total_long_pnl
+                        - total_short_pnl
+                        - updated_at
+                        - totalVolumeFormatted
+                        - totalLongPnlFormatted
+                        - totalShortPnlFormatted
+                required:
+                  - count
+                  - markets
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_stats_markets()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiStatsMarkets();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/stats/system:
+    get:
+      summary: System metrics
+      responses:
+        "200":
+          description: System metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  total_positions_opened:
+                    type: integer
+                  total_positions_closed:
+                    type: integer
+                  total_volume_usd:
+                    type: string
+                  total_fees_usd:
+                    type: string
+                  total_pnl_distributed:
+                    type: string
+                  total_unique_traders:
+                    type: integer
+                  last_indexed_block:
+                    type: integer
+                  updated_at:
+                    type: number
+                  totalVolumeFormatted:
+                    type: string
+                  indexer:
+                    type: object
+                    properties:
+                      lastBlock:
+                        type: integer
+                      lastBlockTimestamp:
+                        type: number
+                      isSyncing:
+                        type: boolean
+                    required:
+                      - lastBlock
+                      - lastBlockTimestamp
+                      - isSyncing
+                required:
+                  - id
+                  - total_positions_opened
+                  - total_positions_closed
+                  - total_volume_usd
+                  - total_fees_usd
+                  - total_pnl_distributed
+                  - total_unique_traders
+                  - last_indexed_block
+                  - updated_at
+                  - totalVolumeFormatted
+                  - indexer
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_stats_system()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiStatsSystem();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/stats/summary:
+    get:
+      summary: Dashboard summary
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  overview:
+                    type: object
+                    properties:
+                      totalPositionsOpened:
+                        type: integer
+                      totalPositionsClosed:
+                        type: integer
+                      currentlyOpen:
+                        type: integer
+                      totalTraders:
+                        type: integer
+                      totalVolume:
+                        type: string
+                      totalOpenInterest:
+                        type: string
+                    required:
+                      - totalPositionsOpened
+                      - totalPositionsClosed
+                      - currentlyOpen
+                      - totalTraders
+                      - totalVolume
+                      - totalOpenInterest
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        openLong:
+                          type: integer
+                        openShort:
+                          type: integer
+                        volume:
+                          type: string
+                      required:
+                        - symbol
+                        - openLong
+                        - openShort
+                        - volume
+                  topTraders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank:
+                          type: integer
+                        account:
+                          type: string
+                        pnl:
+                          type: string
+                        trades:
+                          type: integer
+                      required:
+                        - rank
+                        - account
+                        - pnl
+                        - trades
+                  recentActivity:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        account:
+                          type: string
+                        symbol:
+                          type: string
+                        side:
+                          type: string
+                        pnl:
+                          type:
+                            - string
+                            - "null"
+                        timestamp:
+                          type: number
+                      required:
+                        - type
+                        - account
+                        - symbol
+                        - side
+                        - timestamp
+                required:
+                  - overview
+                  - markets
+                  - topTraders
+                  - recentActivity
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                res = fx_oracle_service_api.get_api_stats_summary()
+
+                # Handle response
+                print(res)
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              const result = await fxOracleServiceApi.getApiStatsSummary();
+
+              console.log(result);
+            }
+
+
+            run();
+  /ws:
+    get:
+      summary: WebSocket upgrade for real-time price and enriched data
+      description: Connect with ws or wss using the same host to receive
+        WebSocketMessage payloads.
+      responses:
+        "101":
+          description: Switching Protocols
+      x-codeSamples:
+        - label: python
+          lang: python
+          source: >-
+            from paxeer_network_fx_oracle_service_api_python import
+            FxOracleServiceAPI
+
+
+
+            with FxOracleServiceAPI() as fx_oracle_service_api:
+
+                fx_oracle_service_api.get_ws()
+
+                # Use the SDK ...
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { FxOracleServiceApi } from
+            "@paxeer-network/fx-oracle-service-api-typescript";
+
+
+            const fxOracleServiceApi = new FxOracleServiceApi();
+
+
+            async function run() {
+              await fxOracleServiceApi.getWs();
+
+
+            }
+
+
+            run();
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+        network:
+          type: string
+        lastUpdateTs:
+          type:
+            - number
+            - "null"
+        trackedSymbols:
+          type: array
+          items:
+            type: string
+        feedCount:
+          type: integer
+      required:
+        - status
+        - network
+        - trackedSymbols
+        - feedCount
+    PriceData:
+      type: object
+      properties:
+        marketId:
+          type: string
+        rawPrice:
+          type: string
+          description: Price scaled (typically 18 decimals)
+        publishTime:
+          type: string
+      required:
+        - marketId
+        - rawPrice
+        - publishTime
+    PricesResponse:
+      type: object
+      properties:
+        timestamp:
+          type:
+            - string
+            - "null"
+        prices:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              marketId:
+                type: string
+              rawPrice:
+                type: string
+                description: Price scaled (typically 18 decimals)
+              publishTime:
+                type: string
+            required:
+              - marketId
+              - rawPrice
+              - publishTime
+      required:
+        - prices
+    SinglePriceResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        marketId:
+          type: string
+        rawPrice:
+          type: string
+        publishTime:
+          type: string
+      required:
+        - symbol
+        - marketId
+        - rawPrice
+        - publishTime
+    CandlestickData:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        open:
+          type: number
+        high:
+          type: number
+        low:
+          type: number
+        close:
+          type: number
+        volume:
+          type: number
+        volumeWeighted:
+          type: number
+        percentChange:
+          type: string
+        priceChangeAbsolute:
+          type: number
+      required:
+        - timestamp
+        - open
+        - high
+        - low
+        - close
+        - volume
+        - volumeWeighted
+        - percentChange
+        - priceChangeAbsolute
+    TradeData:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        price:
+          type: number
+        volume:
+          type: number
+        volumeWeighted:
+          type: number
+        direction:
+          type: number
+      required:
+        - timestamp
+        - price
+        - volume
+        - volumeWeighted
+        - direction
+    DepthData:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        ask:
+          type: object
+          properties:
+            price:
+              type: number
+            volume:
+              type: number
+          required:
+            - price
+            - volume
+        bid:
+          type: object
+          properties:
+            price:
+              type: number
+            volume:
+              type: number
+          required:
+            - price
+            - volume
+        spread:
+          type: number
+      required:
+        - timestamp
+        - ask
+        - bid
+        - spread
+    EnrichedSymbolData:
+      type: object
+      properties:
+        symbol:
+          type: string
+        candlestick:
+          nullable: true
+          type: object
+          properties:
+            timestamp:
+              type: number
+            open:
+              type: number
+            high:
+              type: number
+            low:
+              type: number
+            close:
+              type: number
+            volume:
+              type: number
+            volumeWeighted:
+              type: number
+            percentChange:
+              type: string
+            priceChangeAbsolute:
+              type: number
+          required:
+            - timestamp
+            - open
+            - high
+            - low
+            - close
+            - volume
+            - volumeWeighted
+            - percentChange
+            - priceChangeAbsolute
+        trade:
+          nullable: true
+          type: object
+          properties:
+            timestamp:
+              type: number
+            price:
+              type: number
+            volume:
+              type: number
+            volumeWeighted:
+              type: number
+            direction:
+              type: number
+          required:
+            - timestamp
+            - price
+            - volume
+            - volumeWeighted
+            - direction
+        depth:
+          nullable: true
+          type: object
+          properties:
+            timestamp:
+              type: number
+            ask:
+              type: object
+              properties:
+                price:
+                  type: number
+                volume:
+                  type: number
+              required:
+                - price
+                - volume
+            bid:
+              type: object
+              properties:
+                price:
+                  type: number
+                volume:
+                  type: number
+              required:
+                - price
+                - volume
+            spread:
+              type: number
+          required:
+            - timestamp
+            - ask
+            - bid
+            - spread
+        error:
+          type:
+            - string
+            - "null"
+      required:
+        - symbol
+    EnrichedPricesResponse:
+      type: object
+      properties:
+        timestamp:
+          type:
+            - string
+            - "null"
+        prices:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              marketId:
+                type: string
+              rawPrice:
+                type: string
+                description: Price scaled (typically 18 decimals)
+              publishTime:
+                type: string
+            required:
+              - marketId
+              - rawPrice
+              - publishTime
+        enriched:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              symbol:
+                type: string
+              candlestick:
+                nullable: true
+                type: object
+                properties:
+                  timestamp:
+                    type: number
+                  open:
+                    type: number
+                  high:
+                    type: number
+                  low:
+                    type: number
+                  close:
+                    type: number
+                  volume:
+                    type: number
+                  volumeWeighted:
+                    type: number
+                  percentChange:
+                    type: string
+                  priceChangeAbsolute:
+                    type: number
+                required:
+                  - timestamp
+                  - open
+                  - high
+                  - low
+                  - close
+                  - volume
+                  - volumeWeighted
+                  - percentChange
+                  - priceChangeAbsolute
+              trade:
+                nullable: true
+                type: object
+                properties:
+                  timestamp:
+                    type: number
+                  price:
+                    type: number
+                  volume:
+                    type: number
+                  volumeWeighted:
+                    type: number
+                  direction:
+                    type: number
+                required:
+                  - timestamp
+                  - price
+                  - volume
+                  - volumeWeighted
+                  - direction
+              depth:
+                nullable: true
+                type: object
+                properties:
+                  timestamp:
+                    type: number
+                  ask:
+                    type: object
+                    properties:
+                      price:
+                        type: number
+                      volume:
+                        type: number
+                    required:
+                      - price
+                      - volume
+                  bid:
+                    type: object
+                    properties:
+                      price:
+                        type: number
+                      volume:
+                        type: number
+                    required:
+                      - price
+                      - volume
+                  spread:
+                    type: number
+                required:
+                  - timestamp
+                  - ask
+                  - bid
+                  - spread
+              error:
+                type:
+                  - string
+                  - "null"
+            required:
+              - symbol
+      required:
+        - prices
+        - enriched
+    EnrichedSymbolResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        price:
+          type: object
+          properties:
+            marketId:
+              type: string
+            rawPrice:
+              type: string
+              description: Price scaled (typically 18 decimals)
+            publishTime:
+              type: string
+          required:
+            - marketId
+            - rawPrice
+            - publishTime
+        enriched:
+          nullable: true
+          type: object
+          properties:
+            symbol:
+              type: string
+            candlestick:
+              nullable: true
+              type: object
+              properties:
+                timestamp:
+                  type: number
+                open:
+                  type: number
+                high:
+                  type: number
+                low:
+                  type: number
+                close:
+                  type: number
+                volume:
+                  type: number
+                volumeWeighted:
+                  type: number
+                percentChange:
+                  type: string
+                priceChangeAbsolute:
+                  type: number
+              required:
+                - timestamp
+                - open
+                - high
+                - low
+                - close
+                - volume
+                - volumeWeighted
+                - percentChange
+                - priceChangeAbsolute
+            trade:
+              nullable: true
+              type: object
+              properties:
+                timestamp:
+                  type: number
+                price:
+                  type: number
+                volume:
+                  type: number
+                volumeWeighted:
+                  type: number
+                direction:
+                  type: number
+              required:
+                - timestamp
+                - price
+                - volume
+                - volumeWeighted
+                - direction
+            depth:
+              nullable: true
+              type: object
+              properties:
+                timestamp:
+                  type: number
+                ask:
+                  type: object
+                  properties:
+                    price:
+                      type: number
+                    volume:
+                      type: number
+                  required:
+                    - price
+                    - volume
+                bid:
+                  type: object
+                  properties:
+                    price:
+                      type: number
+                    volume:
+                      type: number
+                  required:
+                    - price
+                    - volume
+                spread:
+                  type: number
+              required:
+                - timestamp
+                - ask
+                - bid
+                - spread
+            error:
+              type:
+                - string
+                - "null"
+          required:
+            - symbol
+      required:
+        - symbol
+        - price
+    MarketDataResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+        price:
+          nullable: true
+          type: object
+          properties:
+            marketId:
+              type: string
+            rawPrice:
+              type: string
+              description: Price scaled (typically 18 decimals)
+            publishTime:
+              type: string
+          required:
+            - marketId
+            - rawPrice
+            - publishTime
+        candlestick:
+          nullable: true
+          type: object
+          properties:
+            timestamp:
+              type: number
+            open:
+              type: number
+            high:
+              type: number
+            low:
+              type: number
+            close:
+              type: number
+            volume:
+              type: number
+            volumeWeighted:
+              type: number
+            percentChange:
+              type: string
+            priceChangeAbsolute:
+              type: number
+          required:
+            - timestamp
+            - open
+            - high
+            - low
+            - close
+            - volume
+            - volumeWeighted
+            - percentChange
+            - priceChangeAbsolute
+        trade:
+          nullable: true
+          type: object
+          properties:
+            timestamp:
+              type: number
+            price:
+              type: number
+            volume:
+              type: number
+            volumeWeighted:
+              type: number
+            direction:
+              type: number
+          required:
+            - timestamp
+            - price
+            - volume
+            - volumeWeighted
+            - direction
+        depth:
+          nullable: true
+          type: object
+          properties:
+            timestamp:
+              type: number
+            ask:
+              type: object
+              properties:
+                price:
+                  type: number
+                volume:
+                  type: number
+              required:
+                - price
+                - volume
+            bid:
+              type: object
+              properties:
+                price:
+                  type: number
+                volume:
+                  type: number
+              required:
+                - price
+                - volume
+            spread:
+              type: number
+          required:
+            - timestamp
+            - ask
+            - bid
+            - spread
+        error:
+          type:
+            - string
+            - "null"
+      required:
+        - symbol
+    Position:
+      type: object
+      properties:
+        id:
+          type: integer
+        account:
+          type: string
+        market_id:
+          type: string
+        symbol:
+          type: string
+        is_long:
+          type: integer
+        size_base:
+          type: string
+        entry_price:
+          type: string
+        margin_usd:
+          type: string
+        leverage:
+          type: string
+        status:
+          type: string
+          enum:
+            - open
+            - closed
+        opened_at:
+          type: number
+        opened_tx:
+          type: string
+        opened_block:
+          type: integer
+        closed_at:
+          type:
+            - number
+            - "null"
+        closed_tx:
+          type:
+            - string
+            - "null"
+        closed_block:
+          type:
+            - integer
+            - "null"
+        exit_price:
+          type:
+            - string
+            - "null"
+        realized_pnl:
+          type:
+            - string
+            - "null"
+        created_at:
+          type: number
+        updated_at:
+          type: number
+      required:
+        - id
+        - account
+        - market_id
+        - symbol
+        - is_long
+        - size_base
+        - entry_price
+        - margin_usd
+        - leverage
+        - status
+        - opened_at
+        - opened_tx
+        - opened_block
+        - created_at
+        - updated_at
+    EnrichedPosition:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+            account:
+              type: string
+            market_id:
+              type: string
+            symbol:
+              type: string
+            is_long:
+              type: integer
+            size_base:
+              type: string
+            entry_price:
+              type: string
+            margin_usd:
+              type: string
+            leverage:
+              type: string
+            status:
+              type: string
+              enum:
+                - open
+                - closed
+            opened_at:
+              type: number
+            opened_tx:
+              type: string
+            opened_block:
+              type: integer
+            closed_at:
+              type:
+                - number
+                - "null"
+            closed_tx:
+              type:
+                - string
+                - "null"
+            closed_block:
+              type:
+                - integer
+                - "null"
+            exit_price:
+              type:
+                - string
+                - "null"
+            realized_pnl:
+              type:
+                - string
+                - "null"
+            created_at:
+              type: number
+            updated_at:
+              type: number
+          required:
+            - id
+            - account
+            - market_id
+            - symbol
+            - is_long
+            - size_base
+            - entry_price
+            - margin_usd
+            - leverage
+            - status
+            - opened_at
+            - opened_tx
+            - opened_block
+            - created_at
+            - updated_at
+        - type: object
+          properties:
+            currentPrice:
+              type: string
+            currentPriceFormatted:
+              type: string
+            pnlUsd:
+              type: string
+            pnlUsdFormatted:
+              type: string
+            pnlPercent:
+              type: number
+            isProfit:
+              type: boolean
+            notionalUsd:
+              type: string
+            notionalUsdFormatted:
+              type: string
+            equityUsd:
+              type: string
+            equityUsdFormatted:
+              type: string
+            marginRatio:
+              type: number
+            liquidationPrice:
+              type: string
+            liquidationPriceFormatted:
+              type: string
+            maintenanceMarginUsd:
+              type: string
+    OpenPositionsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        positions:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: integer
+                  account:
+                    type: string
+                  market_id:
+                    type: string
+                  symbol:
+                    type: string
+                  is_long:
+                    type: integer
+                  size_base:
+                    type: string
+                  entry_price:
+                    type: string
+                  margin_usd:
+                    type: string
+                  leverage:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - open
+                      - closed
+                  opened_at:
+                    type: number
+                  opened_tx:
+                    type: string
+                  opened_block:
+                    type: integer
+                  closed_at:
+                    type:
+                      - number
+                      - "null"
+                  closed_tx:
+                    type:
+                      - string
+                      - "null"
+                  closed_block:
+                    type:
+                      - integer
+                      - "null"
+                  exit_price:
+                    type:
+                      - string
+                      - "null"
+                  realized_pnl:
+                    type:
+                      - string
+                      - "null"
+                  created_at:
+                    type: number
+                  updated_at:
+                    type: number
+                required:
+                  - id
+                  - account
+                  - market_id
+                  - symbol
+                  - is_long
+                  - size_base
+                  - entry_price
+                  - margin_usd
+                  - leverage
+                  - status
+                  - opened_at
+                  - opened_tx
+                  - opened_block
+                  - created_at
+                  - updated_at
+              - allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                      account:
+                        type: string
+                      market_id:
+                        type: string
+                      symbol:
+                        type: string
+                      is_long:
+                        type: integer
+                      size_base:
+                        type: string
+                      entry_price:
+                        type: string
+                      margin_usd:
+                        type: string
+                      leverage:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - open
+                          - closed
+                      opened_at:
+                        type: number
+                      opened_tx:
+                        type: string
+                      opened_block:
+                        type: integer
+                      closed_at:
+                        type:
+                          - number
+                          - "null"
+                      closed_tx:
+                        type:
+                          - string
+                          - "null"
+                      closed_block:
+                        type:
+                          - integer
+                          - "null"
+                      exit_price:
+                        type:
+                          - string
+                          - "null"
+                      realized_pnl:
+                        type:
+                          - string
+                          - "null"
+                      created_at:
+                        type: number
+                      updated_at:
+                        type: number
+                    required:
+                      - id
+                      - account
+                      - market_id
+                      - symbol
+                      - is_long
+                      - size_base
+                      - entry_price
+                      - margin_usd
+                      - leverage
+                      - status
+                      - opened_at
+                      - opened_tx
+                      - opened_block
+                      - created_at
+                      - updated_at
+                  - type: object
+                    properties:
+                      currentPrice:
+                        type: string
+                      currentPriceFormatted:
+                        type: string
+                      pnlUsd:
+                        type: string
+                      pnlUsdFormatted:
+                        type: string
+                      pnlPercent:
+                        type: number
+                      isProfit:
+                        type: boolean
+                      notionalUsd:
+                        type: string
+                      notionalUsdFormatted:
+                        type: string
+                      equityUsd:
+                        type: string
+                      equityUsdFormatted:
+                        type: string
+                      marginRatio:
+                        type: number
+                      liquidationPrice:
+                        type: string
+                      liquidationPriceFormatted:
+                        type: string
+                      maintenanceMarginUsd:
+                        type: string
+      required:
+        - count
+        - positions
+    AccountPositionsResponse:
+      type: object
+      properties:
+        account:
+          type: string
+        count:
+          type: integer
+        positions:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: integer
+                  account:
+                    type: string
+                  market_id:
+                    type: string
+                  symbol:
+                    type: string
+                  is_long:
+                    type: integer
+                  size_base:
+                    type: string
+                  entry_price:
+                    type: string
+                  margin_usd:
+                    type: string
+                  leverage:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - open
+                      - closed
+                  opened_at:
+                    type: number
+                  opened_tx:
+                    type: string
+                  opened_block:
+                    type: integer
+                  closed_at:
+                    type:
+                      - number
+                      - "null"
+                  closed_tx:
+                    type:
+                      - string
+                      - "null"
+                  closed_block:
+                    type:
+                      - integer
+                      - "null"
+                  exit_price:
+                    type:
+                      - string
+                      - "null"
+                  realized_pnl:
+                    type:
+                      - string
+                      - "null"
+                  created_at:
+                    type: number
+                  updated_at:
+                    type: number
+                required:
+                  - id
+                  - account
+                  - market_id
+                  - symbol
+                  - is_long
+                  - size_base
+                  - entry_price
+                  - margin_usd
+                  - leverage
+                  - status
+                  - opened_at
+                  - opened_tx
+                  - opened_block
+                  - created_at
+                  - updated_at
+              - allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                      account:
+                        type: string
+                      market_id:
+                        type: string
+                      symbol:
+                        type: string
+                      is_long:
+                        type: integer
+                      size_base:
+                        type: string
+                      entry_price:
+                        type: string
+                      margin_usd:
+                        type: string
+                      leverage:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - open
+                          - closed
+                      opened_at:
+                        type: number
+                      opened_tx:
+                        type: string
+                      opened_block:
+                        type: integer
+                      closed_at:
+                        type:
+                          - number
+                          - "null"
+                      closed_tx:
+                        type:
+                          - string
+                          - "null"
+                      closed_block:
+                        type:
+                          - integer
+                          - "null"
+                      exit_price:
+                        type:
+                          - string
+                          - "null"
+                      realized_pnl:
+                        type:
+                          - string
+                          - "null"
+                      created_at:
+                        type: number
+                      updated_at:
+                        type: number
+                    required:
+                      - id
+                      - account
+                      - market_id
+                      - symbol
+                      - is_long
+                      - size_base
+                      - entry_price
+                      - margin_usd
+                      - leverage
+                      - status
+                      - opened_at
+                      - opened_tx
+                      - opened_block
+                      - created_at
+                      - updated_at
+                  - type: object
+                    properties:
+                      currentPrice:
+                        type: string
+                      currentPriceFormatted:
+                        type: string
+                      pnlUsd:
+                        type: string
+                      pnlUsdFormatted:
+                        type: string
+                      pnlPercent:
+                        type: number
+                      isProfit:
+                        type: boolean
+                      notionalUsd:
+                        type: string
+                      notionalUsdFormatted:
+                        type: string
+                      equityUsd:
+                        type: string
+                      equityUsdFormatted:
+                        type: string
+                      marginRatio:
+                        type: number
+                      liquidationPrice:
+                        type: string
+                      liquidationPriceFormatted:
+                        type: string
+                      maintenanceMarginUsd:
+                        type: string
+      required:
+        - account
+        - count
+        - positions
+    MarketPositionsResponse:
+      type: object
+      properties:
+        marketId:
+          type: string
+        count:
+          type: integer
+        positions:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: integer
+                  account:
+                    type: string
+                  market_id:
+                    type: string
+                  symbol:
+                    type: string
+                  is_long:
+                    type: integer
+                  size_base:
+                    type: string
+                  entry_price:
+                    type: string
+                  margin_usd:
+                    type: string
+                  leverage:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - open
+                      - closed
+                  opened_at:
+                    type: number
+                  opened_tx:
+                    type: string
+                  opened_block:
+                    type: integer
+                  closed_at:
+                    type:
+                      - number
+                      - "null"
+                  closed_tx:
+                    type:
+                      - string
+                      - "null"
+                  closed_block:
+                    type:
+                      - integer
+                      - "null"
+                  exit_price:
+                    type:
+                      - string
+                      - "null"
+                  realized_pnl:
+                    type:
+                      - string
+                      - "null"
+                  created_at:
+                    type: number
+                  updated_at:
+                    type: number
+                required:
+                  - id
+                  - account
+                  - market_id
+                  - symbol
+                  - is_long
+                  - size_base
+                  - entry_price
+                  - margin_usd
+                  - leverage
+                  - status
+                  - opened_at
+                  - opened_tx
+                  - opened_block
+                  - created_at
+                  - updated_at
+              - allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                      account:
+                        type: string
+                      market_id:
+                        type: string
+                      symbol:
+                        type: string
+                      is_long:
+                        type: integer
+                      size_base:
+                        type: string
+                      entry_price:
+                        type: string
+                      margin_usd:
+                        type: string
+                      leverage:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - open
+                          - closed
+                      opened_at:
+                        type: number
+                      opened_tx:
+                        type: string
+                      opened_block:
+                        type: integer
+                      closed_at:
+                        type:
+                          - number
+                          - "null"
+                      closed_tx:
+                        type:
+                          - string
+                          - "null"
+                      closed_block:
+                        type:
+                          - integer
+                          - "null"
+                      exit_price:
+                        type:
+                          - string
+                          - "null"
+                      realized_pnl:
+                        type:
+                          - string
+                          - "null"
+                      created_at:
+                        type: number
+                      updated_at:
+                        type: number
+                    required:
+                      - id
+                      - account
+                      - market_id
+                      - symbol
+                      - is_long
+                      - size_base
+                      - entry_price
+                      - margin_usd
+                      - leverage
+                      - status
+                      - opened_at
+                      - opened_tx
+                      - opened_block
+                      - created_at
+                      - updated_at
+                  - type: object
+                    properties:
+                      currentPrice:
+                        type: string
+                      currentPriceFormatted:
+                        type: string
+                      pnlUsd:
+                        type: string
+                      pnlUsdFormatted:
+                        type: string
+                      pnlPercent:
+                        type: number
+                      isProfit:
+                        type: boolean
+                      notionalUsd:
+                        type: string
+                      notionalUsdFormatted:
+                        type: string
+                      equityUsd:
+                        type: string
+                      equityUsdFormatted:
+                        type: string
+                      marginRatio:
+                        type: number
+                      liquidationPrice:
+                        type: string
+                      liquidationPriceFormatted:
+                        type: string
+                      maintenanceMarginUsd:
+                        type: string
+      required:
+        - marketId
+        - count
+        - positions
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_type:
+          type: string
+          enum:
+            - open
+            - close
+            - presigned_close
+        account:
+          type: string
+        market_id:
+          type: string
+        symbol:
+          type: string
+        is_long:
+          type:
+            - integer
+            - "null"
+        size_base:
+          type:
+            - string
+            - "null"
+        margin_usd:
+          type:
+            - string
+            - "null"
+        leverage:
+          type:
+            - string
+            - "null"
+        pnl_usd:
+          type:
+            - string
+            - "null"
+        tx_hash:
+          type: string
+        block_number:
+          type: integer
+        block_timestamp:
+          type: number
+        log_index:
+          type: integer
+        raw_data:
+          type:
+            - string
+            - "null"
+        created_at:
+          type: number
+      required:
+        - id
+        - event_type
+        - account
+        - market_id
+        - symbol
+        - tx_hash
+        - block_number
+        - block_timestamp
+        - log_index
+        - created_at
+    RecentOrdersResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              event_type:
+                type: string
+                enum:
+                  - open
+                  - close
+                  - presigned_close
+              account:
+                type: string
+              market_id:
+                type: string
+              symbol:
+                type: string
+              is_long:
+                type:
+                  - integer
+                  - "null"
+              size_base:
+                type:
+                  - string
+                  - "null"
+              margin_usd:
+                type:
+                  - string
+                  - "null"
+              leverage:
+                type:
+                  - string
+                  - "null"
+              pnl_usd:
+                type:
+                  - string
+                  - "null"
+              tx_hash:
+                type: string
+              block_number:
+                type: integer
+              block_timestamp:
+                type: number
+              log_index:
+                type: integer
+              raw_data:
+                type:
+                  - string
+                  - "null"
+              created_at:
+                type: number
+            required:
+              - id
+              - event_type
+              - account
+              - market_id
+              - symbol
+              - tx_hash
+              - block_number
+              - block_timestamp
+              - log_index
+              - created_at
+      required:
+        - count
+        - orders
+    AccountOrdersResponse:
+      type: object
+      properties:
+        account:
+          type: string
+        count:
+          type: integer
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              event_type:
+                type: string
+                enum:
+                  - open
+                  - close
+                  - presigned_close
+              account:
+                type: string
+              market_id:
+                type: string
+              symbol:
+                type: string
+              is_long:
+                type:
+                  - integer
+                  - "null"
+              size_base:
+                type:
+                  - string
+                  - "null"
+              margin_usd:
+                type:
+                  - string
+                  - "null"
+              leverage:
+                type:
+                  - string
+                  - "null"
+              pnl_usd:
+                type:
+                  - string
+                  - "null"
+              tx_hash:
+                type: string
+              block_number:
+                type: integer
+              block_timestamp:
+                type: number
+              log_index:
+                type: integer
+              raw_data:
+                type:
+                  - string
+                  - "null"
+              created_at:
+                type: number
+            required:
+              - id
+              - event_type
+              - account
+              - market_id
+              - symbol
+              - tx_hash
+              - block_number
+              - block_timestamp
+              - log_index
+              - created_at
+      required:
+        - account
+        - count
+        - orders
+    CollateralEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_type:
+          type: string
+          enum:
+            - deposit
+            - withdraw
+        account:
+          type: string
+        token:
+          type: string
+        amount:
+          type: string
+        tx_hash:
+          type: string
+        block_number:
+          type: integer
+        block_timestamp:
+          type: number
+        log_index:
+          type: integer
+        created_at:
+          type: number
+      required:
+        - id
+        - event_type
+        - account
+        - token
+        - amount
+        - tx_hash
+        - block_number
+        - block_timestamp
+        - log_index
+        - created_at
+    CollateralEventsResponse:
+      type: object
+      properties:
+        account:
+          type: string
+        count:
+          type: integer
+        events:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              event_type:
+                type: string
+                enum:
+                  - deposit
+                  - withdraw
+              account:
+                type: string
+              token:
+                type: string
+              amount:
+                type: string
+              tx_hash:
+                type: string
+              block_number:
+                type: integer
+              block_timestamp:
+                type: number
+              log_index:
+                type: integer
+              created_at:
+                type: number
+            required:
+              - id
+              - event_type
+              - account
+              - token
+              - amount
+              - tx_hash
+              - block_number
+              - block_timestamp
+              - log_index
+              - created_at
+      required:
+        - account
+        - count
+        - events
+    UserStats:
+      type: object
+      properties:
+        account:
+          type: string
+        total_trades:
+          type: integer
+        winning_trades:
+          type: integer
+        losing_trades:
+          type: integer
+        total_volume_usd:
+          type: string
+        total_pnl_usd:
+          type: string
+        best_trade_pnl:
+          type: string
+        worst_trade_pnl:
+          type: string
+        avg_leverage:
+          type: string
+        avg_hold_time_seconds:
+          type: number
+        first_trade_at:
+          type:
+            - number
+            - "null"
+        last_trade_at:
+          type:
+            - number
+            - "null"
+        updated_at:
+          type: number
+      required:
+        - account
+        - total_trades
+        - winning_trades
+        - losing_trades
+        - total_volume_usd
+        - total_pnl_usd
+        - best_trade_pnl
+        - worst_trade_pnl
+        - avg_leverage
+        - avg_hold_time_seconds
+        - updated_at
+    PerformanceMetrics:
+      type: object
+      properties:
+        winRate:
+          type: string
+        totalTrades:
+          type: integer
+        winningTrades:
+          type: integer
+        losingTrades:
+          type: integer
+        totalPnlFormatted:
+          type: string
+        totalVolumeFormatted:
+          type: string
+        roi:
+          type: string
+        avgHoldTimeFormatted:
+          type: string
+      required:
+        - winRate
+        - totalTrades
+        - winningTrades
+        - losingTrades
+        - totalPnlFormatted
+        - totalVolumeFormatted
+        - roi
+        - avgHoldTimeFormatted
+    AccountStatsResponse:
+      type: object
+      properties:
+        account:
+          type: string
+        hasTraded:
+          type: boolean
+        stats:
+          anyOf:
+            - allOf:
+                - type: object
+                  properties:
+                    account:
+                      type: string
+                    total_trades:
+                      type: integer
+                    winning_trades:
+                      type: integer
+                    losing_trades:
+                      type: integer
+                    total_volume_usd:
+                      type: string
+                    total_pnl_usd:
+                      type: string
+                    best_trade_pnl:
+                      type: string
+                    worst_trade_pnl:
+                      type: string
+                    avg_leverage:
+                      type: string
+                    avg_hold_time_seconds:
+                      type: number
+                    first_trade_at:
+                      type:
+                        - number
+                        - "null"
+                    last_trade_at:
+                      type:
+                        - number
+                        - "null"
+                    updated_at:
+                      type: number
+                  required:
+                    - account
+                    - total_trades
+                    - winning_trades
+                    - losing_trades
+                    - total_volume_usd
+                    - total_pnl_usd
+                    - best_trade_pnl
+                    - worst_trade_pnl
+                    - avg_leverage
+                    - avg_hold_time_seconds
+                    - updated_at
+                - type: object
+                  properties:
+                    winRate:
+                      type: string
+                    totalTrades:
+                      type: integer
+                    winningTrades:
+                      type: integer
+                    losingTrades:
+                      type: integer
+                    totalPnlFormatted:
+                      type: string
+                    totalVolumeFormatted:
+                      type: string
+                    roi:
+                      type: string
+                    avgHoldTimeFormatted:
+                      type: string
+                  required:
+                    - winRate
+                    - totalTrades
+                    - winningTrades
+                    - losingTrades
+                    - totalPnlFormatted
+                    - totalVolumeFormatted
+                    - roi
+                    - avgHoldTimeFormatted
+            - type: "null"
+      required:
+        - account
+        - hasTraded
+        - stats
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        account:
+          type: string
+        winRate:
+          type: string
+        totalTrades:
+          type: integer
+        winningTrades:
+          type: integer
+        losingTrades:
+          type: integer
+        totalPnlFormatted:
+          type: string
+        totalVolumeFormatted:
+          type: string
+        roi:
+          type: string
+        avgHoldTimeFormatted:
+          type: string
+        totalPnlUsd:
+          type: string
+        totalVolumeUsd:
+          type: string
+      required:
+        - rank
+        - account
+        - winRate
+        - totalTrades
+        - winningTrades
+        - losingTrades
+        - totalPnlFormatted
+        - totalVolumeFormatted
+        - roi
+        - avgHoldTimeFormatted
+        - totalPnlUsd
+        - totalVolumeUsd
+    LeaderboardResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        sortBy:
+          type: string
+        leaderboard:
+          type: array
+          items:
+            type: object
+            properties:
+              rank:
+                type: integer
+              account:
+                type: string
+              winRate:
+                type: string
+              totalTrades:
+                type: integer
+              winningTrades:
+                type: integer
+              losingTrades:
+                type: integer
+              totalPnlFormatted:
+                type: string
+              totalVolumeFormatted:
+                type: string
+              roi:
+                type: string
+              avgHoldTimeFormatted:
+                type: string
+              totalPnlUsd:
+                type: string
+              totalVolumeUsd:
+                type: string
+            required:
+              - rank
+              - account
+              - winRate
+              - totalTrades
+              - winningTrades
+              - losingTrades
+              - totalPnlFormatted
+              - totalVolumeFormatted
+              - roi
+              - avgHoldTimeFormatted
+              - totalPnlUsd
+              - totalVolumeUsd
+      required:
+        - count
+        - sortBy
+        - leaderboard
+    MarketStats:
+      type: object
+      properties:
+        market_id:
+          type: string
+        symbol:
+          type: string
+        total_long_positions:
+          type: integer
+        total_short_positions:
+          type: integer
+        open_long_positions:
+          type: integer
+        open_short_positions:
+          type: integer
+        total_volume_usd:
+          type: string
+        total_long_pnl:
+          type: string
+        total_short_pnl:
+          type: string
+        updated_at:
+          type: number
+        totalVolumeFormatted:
+          type: string
+        totalLongPnlFormatted:
+          type: string
+        totalShortPnlFormatted:
+          type: string
+      required:
+        - market_id
+        - symbol
+        - total_long_positions
+        - total_short_positions
+        - open_long_positions
+        - open_short_positions
+        - total_volume_usd
+        - total_long_pnl
+        - total_short_pnl
+        - updated_at
+        - totalVolumeFormatted
+        - totalLongPnlFormatted
+        - totalShortPnlFormatted
+    MarketStatsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              market_id:
+                type: string
+              symbol:
+                type: string
+              total_long_positions:
+                type: integer
+              total_short_positions:
+                type: integer
+              open_long_positions:
+                type: integer
+              open_short_positions:
+                type: integer
+              total_volume_usd:
+                type: string
+              total_long_pnl:
+                type: string
+              total_short_pnl:
+                type: string
+              updated_at:
+                type: number
+              totalVolumeFormatted:
+                type: string
+              totalLongPnlFormatted:
+                type: string
+              totalShortPnlFormatted:
+                type: string
+            required:
+              - market_id
+              - symbol
+              - total_long_positions
+              - total_short_positions
+              - open_long_positions
+              - open_short_positions
+              - total_volume_usd
+              - total_long_pnl
+              - total_short_pnl
+              - updated_at
+              - totalVolumeFormatted
+              - totalLongPnlFormatted
+              - totalShortPnlFormatted
+      required:
+        - count
+        - markets
+    IndexerState:
+      type: object
+      properties:
+        lastBlock:
+          type: integer
+        lastBlockTimestamp:
+          type: number
+        isSyncing:
+          type: boolean
+      required:
+        - lastBlock
+        - lastBlockTimestamp
+        - isSyncing
+    SystemMetrics:
+      type: object
+      properties:
+        id:
+          type: integer
+        total_positions_opened:
+          type: integer
+        total_positions_closed:
+          type: integer
+        total_volume_usd:
+          type: string
+        total_fees_usd:
+          type: string
+        total_pnl_distributed:
+          type: string
+        total_unique_traders:
+          type: integer
+        last_indexed_block:
+          type: integer
+        updated_at:
+          type: number
+        totalVolumeFormatted:
+          type: string
+        indexer:
+          type: object
+          properties:
+            lastBlock:
+              type: integer
+            lastBlockTimestamp:
+              type: number
+            isSyncing:
+              type: boolean
+          required:
+            - lastBlock
+            - lastBlockTimestamp
+            - isSyncing
+      required:
+        - id
+        - total_positions_opened
+        - total_positions_closed
+        - total_volume_usd
+        - total_fees_usd
+        - total_pnl_distributed
+        - total_unique_traders
+        - last_indexed_block
+        - updated_at
+        - totalVolumeFormatted
+        - indexer
+    DashboardSummary:
+      type: object
+      properties:
+        overview:
+          type: object
+          properties:
+            totalPositionsOpened:
+              type: integer
+            totalPositionsClosed:
+              type: integer
+            currentlyOpen:
+              type: integer
+            totalTraders:
+              type: integer
+            totalVolume:
+              type: string
+            totalOpenInterest:
+              type: string
+          required:
+            - totalPositionsOpened
+            - totalPositionsClosed
+            - currentlyOpen
+            - totalTraders
+            - totalVolume
+            - totalOpenInterest
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+              openLong:
+                type: integer
+              openShort:
+                type: integer
+              volume:
+                type: string
+            required:
+              - symbol
+              - openLong
+              - openShort
+              - volume
+        topTraders:
+          type: array
+          items:
+            type: object
+            properties:
+              rank:
+                type: integer
+              account:
+                type: string
+              pnl:
+                type: string
+              trades:
+                type: integer
+            required:
+              - rank
+              - account
+              - pnl
+              - trades
+        recentActivity:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              account:
+                type: string
+              symbol:
+                type: string
+              side:
+                type: string
+              pnl:
+                type:
+                  - string
+                  - "null"
+              timestamp:
+                type: number
+            required:
+              - type
+              - account
+              - symbol
+              - side
+              - timestamp
+      required:
+        - overview
+        - markets
+        - topTraders
+        - recentActivity
+    WebSocketMessage:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - prices
+        timestamp:
+          type: string
+        lastUpdateTs:
+          type: number
+        prices:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              marketId:
+                type: string
+              rawPrice:
+                type: string
+                description: Price scaled (typically 18 decimals)
+              publishTime:
+                type: string
+            required:
+              - marketId
+              - rawPrice
+              - publishTime
+        enriched:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              symbol:
+                type: string
+              candlestick:
+                nullable: true
+                type: object
+                properties:
+                  timestamp:
+                    type: number
+                  open:
+                    type: number
+                  high:
+                    type: number
+                  low:
+                    type: number
+                  close:
+                    type: number
+                  volume:
+                    type: number
+                  volumeWeighted:
+                    type: number
+                  percentChange:
+                    type: string
+                  priceChangeAbsolute:
+                    type: number
+                required:
+                  - timestamp
+                  - open
+                  - high
+                  - low
+                  - close
+                  - volume
+                  - volumeWeighted
+                  - percentChange
+                  - priceChangeAbsolute
+              trade:
+                nullable: true
+                type: object
+                properties:
+                  timestamp:
+                    type: number
+                  price:
+                    type: number
+                  volume:
+                    type: number
+                  volumeWeighted:
+                    type: number
+                  direction:
+                    type: number
+                required:
+                  - timestamp
+                  - price
+                  - volume
+                  - volumeWeighted
+                  - direction
+              depth:
+                nullable: true
+                type: object
+                properties:
+                  timestamp:
+                    type: number
+                  ask:
+                    type: object
+                    properties:
+                      price:
+                        type: number
+                      volume:
+                        type: number
+                    required:
+                      - price
+                      - volume
+                  bid:
+                    type: object
+                    properties:
+                      price:
+                        type: number
+                      volume:
+                        type: number
+                    required:
+                      - price
+                      - volume
+                  spread:
+                    type: number
+                required:
+                  - timestamp
+                  - ask
+                  - bid
+                  - spread
+              error:
+                type:
+                  - string
+                  - "null"
+            required:
+              - symbol
+      required:
+        - type
+        - timestamp
+        - lastUpdateTs
+        - prices
+        - enriched
+x-ext-urls: {}

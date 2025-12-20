@@ -1,0 +1,3177 @@
+openapi: 3.1.0
+info:
+  title: Launchpad Backend API
+  description: REST + TradingView UDF + WebSocket endpoints for Launchpad virtual
+    markets (pricing, discovery, users, metadata). Based on
+    /root/launchpad_backend docs.
+  version: 1.0.0
+servers:
+  - url: https://v1api.paxlaunch.paxswap.org
+    description: Production
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                      - error
+                  version:
+                    type: string
+                required:
+                  - service
+                  - status
+                  - version
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getHealth();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets:
+    get:
+      summary: List markets
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Markets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        name:
+                          type: string
+                        symbol:
+                          type: string
+                        creator:
+                          type: string
+                        collateral_token:
+                          type: string
+                        base_reserve:
+                          type: string
+                        quote_reserve:
+                          type: string
+                        created_at:
+                          type: integer
+                        block_number:
+                          type: integer
+                        tx_hash:
+                          type: string
+                        is_paused:
+                          type: boolean
+                      required:
+                        - address
+                        - name
+                        - symbol
+                        - creator
+                        - collateral_token
+                        - base_reserve
+                        - quote_reserve
+                        - created_at
+                        - block_number
+                        - tx_hash
+                        - is_paused
+                  total:
+                    type: integer
+                required:
+                  - markets
+                  - total
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1Markets({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/{address}:
+    get:
+      summary: Get market with metadata and stats
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  market:
+                    type: object
+                    properties:
+                      address:
+                        type: string
+                      name:
+                        type: string
+                      symbol:
+                        type: string
+                      creator:
+                        type: string
+                      collateral_token:
+                        type: string
+                      base_reserve:
+                        type: string
+                      quote_reserve:
+                        type: string
+                      created_at:
+                        type: integer
+                      block_number:
+                        type: integer
+                      tx_hash:
+                        type: string
+                      is_paused:
+                        type: boolean
+                    required:
+                      - address
+                      - name
+                      - symbol
+                      - creator
+                      - collateral_token
+                      - base_reserve
+                      - quote_reserve
+                      - created_at
+                      - block_number
+                      - tx_hash
+                      - is_paused
+                  metadata:
+                    type: object
+                    properties:
+                      market_address:
+                        type: string
+                      description:
+                        type: string
+                      logo_url:
+                        type: string
+                      website:
+                        type: string
+                      twitter:
+                        type: string
+                      telegram:
+                        type: string
+                      discord:
+                        type: string
+                      created_at:
+                        type: integer
+                      updated_at:
+                        type: integer
+                    required:
+                      - market_address
+                      - created_at
+                      - updated_at
+                  stats:
+                    type: object
+                    properties:
+                      price:
+                        type: string
+                      price_change_24h:
+                        type: number
+                      volume_24h:
+                        type: string
+                      high_24h:
+                        type: string
+                      low_24h:
+                        type: string
+                      trades_24h:
+                        type: integer
+                      open_interest:
+                        type: string
+                      market_cap:
+                        type: string
+                      updated_at:
+                        type: integer
+                    required:
+                      - price
+                      - price_change_24h
+                      - volume_24h
+                      - high_24h
+                      - low_24h
+                      - trades_24h
+                      - open_interest
+                      - updated_at
+                required:
+                  - market
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsAddress({
+                address: "88389 Lon Route",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/{address}/stats:
+    get:
+      summary: Market statistics
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  price:
+                    type: string
+                  price_change_24h:
+                    type: number
+                  volume_24h:
+                    type: string
+                  high_24h:
+                    type: string
+                  low_24h:
+                    type: string
+                  trades_24h:
+                    type: integer
+                  open_interest:
+                    type: string
+                  market_cap:
+                    type: string
+                  updated_at:
+                    type: integer
+                required:
+                  - price
+                  - price_change_24h
+                  - volume_24h
+                  - high_24h
+                  - low_24h
+                  - trades_24h
+                  - open_interest
+                  - updated_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsAddressStats({
+                address: "9251 Marlborough Road",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/{address}/trades:
+    get:
+      summary: Market trade history
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: before
+          in: query
+          schema:
+            type: integer
+        - name: after
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        tx_hash:
+                          type: string
+                        block_number:
+                          type: integer
+                        market_address:
+                          type: string
+                        trader:
+                          type: string
+                        is_long:
+                          type: boolean
+                        is_open:
+                          type: boolean
+                        size:
+                          type: string
+                        price:
+                          type: string
+                        collateral:
+                          type: string
+                        fee:
+                          type: string
+                        timestamp:
+                          type: integer
+                      required:
+                        - id
+                        - tx_hash
+                        - block_number
+                        - market_address
+                        - trader
+                        - is_long
+                        - is_open
+                        - size
+                        - price
+                        - collateral
+                        - fee
+                        - timestamp
+                required:
+                  - trades
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsAddressTrades({
+                address: "57332 The Woodlands",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/{address}/candles:
+    get:
+      summary: Market OHLCV candles
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          schema:
+            type: string
+            enum:
+              - 1m
+              - 5m
+              - 15m
+              - 1h
+              - 4h
+              - 1d
+            default: 1h
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 500
+      responses:
+        "200":
+          description: Candles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        market_address:
+                          type: string
+                        interval:
+                          type: string
+                        open_time:
+                          type: integer
+                        close_time:
+                          type: integer
+                        open:
+                          type: string
+                        high:
+                          type: string
+                        low:
+                          type: string
+                        close:
+                          type: string
+                        volume:
+                          type: string
+                        trades:
+                          type: integer
+                      required:
+                        - market_address
+                        - interval
+                        - open_time
+                        - close_time
+                        - open
+                        - high
+                        - low
+                        - close
+                        - volume
+                        - trades
+                required:
+                  - candles
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsAddressCandles({
+                address: "6855 Kilback Estate",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/{address}/liquidations:
+    get:
+      summary: Liquidation history
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Liquidations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  liquidations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        tx_hash:
+                          type: string
+                        block_number:
+                          type: integer
+                        market_address:
+                          type: string
+                        trader:
+                          type: string
+                        liquidator:
+                          type: string
+                        position_size:
+                          type: string
+                        margin_lost:
+                          type: string
+                        timestamp:
+                          type: integer
+                      required:
+                        - id
+                        - tx_hash
+                        - block_number
+                        - market_address
+                        - trader
+                        - liquidator
+                        - position_size
+                        - margin_lost
+                        - timestamp
+                required:
+                  - liquidations
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsAddressLiquidations({
+                address: "277 Alanis Courts",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/search:
+    get:
+      summary: Search markets
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        name:
+                          type: string
+                        symbol:
+                          type: string
+                        logo_url:
+                          type: string
+                        price:
+                          type: string
+                        price_change_24h:
+                          type: number
+                        volume_24h:
+                          type: string
+                        created_at:
+                          type: integer
+                      required:
+                        - address
+                        - name
+                        - symbol
+                        - created_at
+                  total:
+                    type: integer
+                required:
+                  - markets
+                  - total
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1Search({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/new:
+    get:
+      summary: Newest markets
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: New markets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    name:
+                      type: string
+                    symbol:
+                      type: string
+                    creator:
+                      type: string
+                    logo_url:
+                      type: string
+                    description:
+                      type: string
+                    price:
+                      type: string
+                    created_at:
+                      type: integer
+                    block_number:
+                      type: integer
+                  required:
+                    - address
+                    - name
+                    - symbol
+                    - creator
+                    - created_at
+                    - block_number
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsNew({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/hot:
+    get:
+      summary: Hot markets
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Hot markets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    name:
+                      type: string
+                    symbol:
+                      type: string
+                    logo_url:
+                      type: string
+                    price:
+                      type: string
+                    price_change_24h:
+                      type: number
+                    volume_24h:
+                      type: string
+                    trades_24h:
+                      type: integer
+                    rank:
+                      type: integer
+                  required:
+                    - address
+                    - name
+                    - symbol
+                    - price
+                    - price_change_24h
+                    - volume_24h
+                    - trades_24h
+                    - rank
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsHot({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/gainers:
+    get:
+      summary: Top gainers
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Gainers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    name:
+                      type: string
+                    symbol:
+                      type: string
+                    logo_url:
+                      type: string
+                    price:
+                      type: string
+                    price_change_24h:
+                      type: number
+                    volume_24h:
+                      type: string
+                  required:
+                    - address
+                    - name
+                    - symbol
+                    - price
+                    - price_change_24h
+                    - volume_24h
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsGainers({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/losers:
+    get:
+      summary: Top losers
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Losers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    name:
+                      type: string
+                    symbol:
+                      type: string
+                    logo_url:
+                      type: string
+                    price:
+                      type: string
+                    price_change_24h:
+                      type: number
+                    volume_24h:
+                      type: string
+                  required:
+                    - address
+                    - name
+                    - symbol
+                    - price
+                    - price_change_24h
+                    - volume_24h
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsLosers({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/users/{address}/positions:
+    get:
+      summary: User positions
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  positions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        market_address:
+                          type: string
+                        user:
+                          type: string
+                        size:
+                          type: string
+                        collateral:
+                          type: string
+                        entry_price:
+                          type: string
+                        is_long:
+                          type: boolean
+                        leverage:
+                          type: string
+                        unrealized_pnl:
+                          type: string
+                        liquidation_price:
+                          type: string
+                        opened_at:
+                          type: integer
+                        updated_at:
+                          type: integer
+                      required:
+                        - id
+                        - market_address
+                        - user
+                        - size
+                        - collateral
+                        - entry_price
+                        - is_long
+                        - leverage
+                        - unrealized_pnl
+                        - liquidation_price
+                        - opened_at
+                        - updated_at
+                required:
+                  - positions
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1UsersAddressPositions({
+                address: "2060 Christophe Skyway",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/users/{address}/trades:
+    get:
+      summary: User trades
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: market
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        tx_hash:
+                          type: string
+                        block_number:
+                          type: integer
+                        market_address:
+                          type: string
+                        trader:
+                          type: string
+                        is_long:
+                          type: boolean
+                        is_open:
+                          type: boolean
+                        size:
+                          type: string
+                        price:
+                          type: string
+                        collateral:
+                          type: string
+                        fee:
+                          type: string
+                        timestamp:
+                          type: integer
+                      required:
+                        - id
+                        - tx_hash
+                        - block_number
+                        - market_address
+                        - trader
+                        - is_long
+                        - is_open
+                        - size
+                        - price
+                        - collateral
+                        - fee
+                        - timestamp
+                required:
+                  - trades
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1UsersAddressTrades({
+                address: "39636 Katelynn Crest",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/users/{address}/balances:
+    get:
+      summary: User balances
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Balances
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        market_address:
+                          type: string
+                        deposited:
+                          type: string
+                        available:
+                          type: string
+                        locked:
+                          type: string
+                      required:
+                        - market_address
+                        - deposited
+                        - available
+                        - locked
+                required:
+                  - balances
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1UsersAddressBalances({
+                address: "296 S Mill Street",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/creators/{address}/markets:
+    get:
+      summary: Markets created by address
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Creator markets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        name:
+                          type: string
+                        symbol:
+                          type: string
+                        creator:
+                          type: string
+                        collateral_token:
+                          type: string
+                        base_reserve:
+                          type: string
+                        quote_reserve:
+                          type: string
+                        created_at:
+                          type: integer
+                        block_number:
+                          type: integer
+                        tx_hash:
+                          type: string
+                        is_paused:
+                          type: boolean
+                      required:
+                        - address
+                        - name
+                        - symbol
+                        - creator
+                        - collateral_token
+                        - base_reserve
+                        - quote_reserve
+                        - created_at
+                        - block_number
+                        - tx_hash
+                        - is_paused
+                required:
+                  - markets
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1CreatorsAddressMarkets({
+                address: "147 N College Street",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/metadata:
+    post:
+      summary: Submit market metadata (multipart)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                market_address:
+                  type: string
+                creator_address:
+                  type: string
+                signature:
+                  type: string
+                description:
+                  type: string
+                website:
+                  type: string
+                twitter:
+                  type: string
+                telegram:
+                  type: string
+                discord:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+              required:
+                - market_address
+                - creator_address
+                - signature
+      responses:
+        "200":
+          description: Submit metadata response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  metadata:
+                    type: object
+                    properties:
+                      market_address:
+                        type: string
+                      description:
+                        type: string
+                      logo_url:
+                        type: string
+                      website:
+                        type: string
+                      twitter:
+                        type: string
+                      telegram:
+                        type: string
+                      discord:
+                        type: string
+                      created_at:
+                        type: integer
+                      updated_at:
+                        type: integer
+                    required:
+                      - market_address
+                      - created_at
+                      - updated_at
+                required:
+                  - success
+                  - metadata
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.postApiV1MarketsMetadata({
+                marketAddress: "<value>",
+                creatorAddress: "<value>",
+                signature: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/v1/markets/{address}/metadata:
+    get:
+      summary: Get market metadata
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  market_address:
+                    type: string
+                  description:
+                    type: string
+                  logo_url:
+                    type: string
+                  website:
+                    type: string
+                  twitter:
+                    type: string
+                  telegram:
+                    type: string
+                  discord:
+                    type: string
+                  created_at:
+                    type: integer
+                  updated_at:
+                    type: integer
+                required:
+                  - market_address
+                  - created_at
+                  - updated_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getApiV1MarketsAddressMetadata({
+                address: "233 W Main",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+    put:
+      summary: Update market metadata (multipart, creator)
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                creator_address:
+                  type: string
+                signature:
+                  type: string
+                description:
+                  type: string
+                website:
+                  type: string
+                twitter:
+                  type: string
+                telegram:
+                  type: string
+                discord:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+              required:
+                - creator_address
+                - signature
+      responses:
+        "200":
+          description: Updated metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  market_address:
+                    type: string
+                  description:
+                    type: string
+                  logo_url:
+                    type: string
+                  website:
+                    type: string
+                  twitter:
+                    type: string
+                  telegram:
+                    type: string
+                  discord:
+                    type: string
+                  created_at:
+                    type: integer
+                  updated_at:
+                    type: integer
+                required:
+                  - market_address
+                  - created_at
+                  - updated_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.putApiV1MarketsAddressMetadata({
+                address: "5657 Boyle Rapid",
+                requestBody: {
+                  creatorAddress: "<value>",
+                  signature: "<value>",
+                },
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /tv/config:
+    get:
+      summary: TradingView config
+      responses:
+        "200":
+          description: Config
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  supported_resolutions:
+                    type: array
+                    items:
+                      type: string
+                  supports_group_request:
+                    type: boolean
+                  supports_marks:
+                    type: boolean
+                  supports_search:
+                    type: boolean
+                  supports_timescale_marks:
+                    type: boolean
+                  supports_time:
+                    type: boolean
+                  exchanges:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        name:
+                          type: string
+                        desc:
+                          type: string
+                      required:
+                        - value
+                        - name
+                        - desc
+                  symbols_types:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - name
+                        - value
+                required:
+                  - supported_resolutions
+                  - supports_group_request
+                  - supports_marks
+                  - supports_search
+                  - supports_timescale_marks
+                  - supports_time
+                  - exchanges
+                  - symbols_types
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getTvConfig();
+
+              console.log(result);
+            }
+
+
+            run();
+  /tv/time:
+    get:
+      summary: Server time (unix seconds)
+      responses:
+        "200":
+          description: Unix time
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "1702300000"
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getTvTime();
+
+              console.log(result);
+            }
+
+
+            run();
+  /tv/symbols:
+    get:
+      summary: TradingView symbol info
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Symbol info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  ticker:
+                    type: string
+                  name:
+                    type: string
+                  full_name:
+                    type: string
+                  description:
+                    type: string
+                  exchange:
+                    type: string
+                  listed_exchange:
+                    type: string
+                  type:
+                    type: string
+                  currency_code:
+                    type: string
+                  session:
+                    type: string
+                  timezone:
+                    type: string
+                  minmovement:
+                    type: integer
+                  minmov:
+                    type: integer
+                  minmovement2:
+                    type: integer
+                  minmov2:
+                    type: integer
+                  pricescale:
+                    type: integer
+                  supported_resolutions:
+                    type: array
+                    items:
+                      type: string
+                  has_intraday:
+                    type: boolean
+                  has_daily:
+                    type: boolean
+                  has_weekly_and_monthly:
+                    type: boolean
+                  data_status:
+                    type: string
+                required:
+                  - symbol
+                  - ticker
+                  - name
+                  - full_name
+                  - description
+                  - exchange
+                  - listed_exchange
+                  - type
+                  - currency_code
+                  - session
+                  - timezone
+                  - minmovement
+                  - minmov
+                  - minmovement2
+                  - minmov2
+                  - pricescale
+                  - supported_resolutions
+                  - has_intraday
+                  - has_daily
+                  - has_weekly_and_monthly
+                  - data_status
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getTvSymbols({
+                symbol: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /tv/search:
+    get:
+      summary: TradingView search
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    symbol:
+                      type: string
+                    full_name:
+                      type: string
+                    description:
+                      type: string
+                    exchange:
+                      type: string
+                    type:
+                      type: string
+                    ticker:
+                      type: string
+                  required:
+                    - symbol
+                    - full_name
+                    - description
+                    - exchange
+                    - type
+                    - ticker
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getTvSearch({
+                query: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /tv/history:
+    get:
+      summary: TradingView history
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: resolution
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: countback
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: History response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  s:
+                    type: string
+                    enum:
+                      - ok
+                      - no_data
+                      - error
+                  t:
+                    type: array
+                    items:
+                      type: integer
+                  o:
+                    type: array
+                    items:
+                      type: number
+                  h:
+                    type: array
+                    items:
+                      type: number
+                  l:
+                    type: array
+                    items:
+                      type: number
+                  c:
+                    type: array
+                    items:
+                      type: number
+                  v:
+                    type: array
+                    items:
+                      type: number
+                  nextTime:
+                    type: integer
+                  errmsg:
+                    type: string
+                required:
+                  - s
+                  - t
+                  - o
+                  - h
+                  - l
+                  - c
+                  - v
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              const result = await launchpadApi.getTvHistory({
+                symbol: "<value>",
+                from: 901136,
+                to: 236111,
+                resolution: "<value>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /ws:
+    get:
+      summary: WebSocket upgrade
+      description: Connect with ws/wss to subscribe to prices, candles, stats, trades,
+        new_markets, hot_markets. See message schemas in components.
+      responses:
+        "101":
+          description: Switching Protocols
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { LaunchpadApi } from
+            "@paxeer-network/launchpad-api-typescript";
+
+
+            const launchpadApi = new LaunchpadApi();
+
+
+            async function run() {
+              await launchpadApi.getWs();
+
+
+            }
+
+
+            run();
+components:
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+          required:
+            - code
+            - message
+      required:
+        - error
+    HealthResponse:
+      type: object
+      properties:
+        service:
+          type: string
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+        version:
+          type: string
+      required:
+        - service
+        - status
+        - version
+    Market:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        creator:
+          type: string
+        collateral_token:
+          type: string
+        base_reserve:
+          type: string
+        quote_reserve:
+          type: string
+        created_at:
+          type: integer
+        block_number:
+          type: integer
+        tx_hash:
+          type: string
+        is_paused:
+          type: boolean
+      required:
+        - address
+        - name
+        - symbol
+        - creator
+        - collateral_token
+        - base_reserve
+        - quote_reserve
+        - created_at
+        - block_number
+        - tx_hash
+        - is_paused
+    MarketMetadata:
+      type: object
+      properties:
+        market_address:
+          type: string
+        description:
+          type: string
+        logo_url:
+          type: string
+        website:
+          type: string
+        twitter:
+          type: string
+        telegram:
+          type: string
+        discord:
+          type: string
+        created_at:
+          type: integer
+        updated_at:
+          type: integer
+      required:
+        - market_address
+        - created_at
+        - updated_at
+    MarketStats:
+      type: object
+      properties:
+        price:
+          type: string
+        price_change_24h:
+          type: number
+        volume_24h:
+          type: string
+        high_24h:
+          type: string
+        low_24h:
+          type: string
+        trades_24h:
+          type: integer
+        open_interest:
+          type: string
+        market_cap:
+          type: string
+        updated_at:
+          type: integer
+      required:
+        - price
+        - price_change_24h
+        - volume_24h
+        - high_24h
+        - low_24h
+        - trades_24h
+        - open_interest
+        - updated_at
+    MarketWithDetails:
+      type: object
+      properties:
+        market:
+          type: object
+          properties:
+            address:
+              type: string
+            name:
+              type: string
+            symbol:
+              type: string
+            creator:
+              type: string
+            collateral_token:
+              type: string
+            base_reserve:
+              type: string
+            quote_reserve:
+              type: string
+            created_at:
+              type: integer
+            block_number:
+              type: integer
+            tx_hash:
+              type: string
+            is_paused:
+              type: boolean
+          required:
+            - address
+            - name
+            - symbol
+            - creator
+            - collateral_token
+            - base_reserve
+            - quote_reserve
+            - created_at
+            - block_number
+            - tx_hash
+            - is_paused
+        metadata:
+          type: object
+          properties:
+            market_address:
+              type: string
+            description:
+              type: string
+            logo_url:
+              type: string
+            website:
+              type: string
+            twitter:
+              type: string
+            telegram:
+              type: string
+            discord:
+              type: string
+            created_at:
+              type: integer
+            updated_at:
+              type: integer
+          required:
+            - market_address
+            - created_at
+            - updated_at
+        stats:
+          type: object
+          properties:
+            price:
+              type: string
+            price_change_24h:
+              type: number
+            volume_24h:
+              type: string
+            high_24h:
+              type: string
+            low_24h:
+              type: string
+            trades_24h:
+              type: integer
+            open_interest:
+              type: string
+            market_cap:
+              type: string
+            updated_at:
+              type: integer
+          required:
+            - price
+            - price_change_24h
+            - volume_24h
+            - high_24h
+            - low_24h
+            - trades_24h
+            - open_interest
+            - updated_at
+      required:
+        - market
+    MarketsListResponse:
+      type: object
+      properties:
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              name:
+                type: string
+              symbol:
+                type: string
+              creator:
+                type: string
+              collateral_token:
+                type: string
+              base_reserve:
+                type: string
+              quote_reserve:
+                type: string
+              created_at:
+                type: integer
+              block_number:
+                type: integer
+              tx_hash:
+                type: string
+              is_paused:
+                type: boolean
+            required:
+              - address
+              - name
+              - symbol
+              - creator
+              - collateral_token
+              - base_reserve
+              - quote_reserve
+              - created_at
+              - block_number
+              - tx_hash
+              - is_paused
+        total:
+          type: integer
+      required:
+        - markets
+        - total
+    Trade:
+      type: object
+      properties:
+        id:
+          type: string
+        tx_hash:
+          type: string
+        block_number:
+          type: integer
+        market_address:
+          type: string
+        trader:
+          type: string
+        is_long:
+          type: boolean
+        is_open:
+          type: boolean
+        size:
+          type: string
+        price:
+          type: string
+        collateral:
+          type: string
+        fee:
+          type: string
+        timestamp:
+          type: integer
+      required:
+        - id
+        - tx_hash
+        - block_number
+        - market_address
+        - trader
+        - is_long
+        - is_open
+        - size
+        - price
+        - collateral
+        - fee
+        - timestamp
+    TradesResponse:
+      type: object
+      properties:
+        trades:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              tx_hash:
+                type: string
+              block_number:
+                type: integer
+              market_address:
+                type: string
+              trader:
+                type: string
+              is_long:
+                type: boolean
+              is_open:
+                type: boolean
+              size:
+                type: string
+              price:
+                type: string
+              collateral:
+                type: string
+              fee:
+                type: string
+              timestamp:
+                type: integer
+            required:
+              - id
+              - tx_hash
+              - block_number
+              - market_address
+              - trader
+              - is_long
+              - is_open
+              - size
+              - price
+              - collateral
+              - fee
+              - timestamp
+      required:
+        - trades
+    Candle:
+      type: object
+      properties:
+        market_address:
+          type: string
+        interval:
+          type: string
+        open_time:
+          type: integer
+        close_time:
+          type: integer
+        open:
+          type: string
+        high:
+          type: string
+        low:
+          type: string
+        close:
+          type: string
+        volume:
+          type: string
+        trades:
+          type: integer
+      required:
+        - market_address
+        - interval
+        - open_time
+        - close_time
+        - open
+        - high
+        - low
+        - close
+        - volume
+        - trades
+    CandlesResponse:
+      type: object
+      properties:
+        candles:
+          type: array
+          items:
+            type: object
+            properties:
+              market_address:
+                type: string
+              interval:
+                type: string
+              open_time:
+                type: integer
+              close_time:
+                type: integer
+              open:
+                type: string
+              high:
+                type: string
+              low:
+                type: string
+              close:
+                type: string
+              volume:
+                type: string
+              trades:
+                type: integer
+            required:
+              - market_address
+              - interval
+              - open_time
+              - close_time
+              - open
+              - high
+              - low
+              - close
+              - volume
+              - trades
+      required:
+        - candles
+    Liquidation:
+      type: object
+      properties:
+        id:
+          type: string
+        tx_hash:
+          type: string
+        block_number:
+          type: integer
+        market_address:
+          type: string
+        trader:
+          type: string
+        liquidator:
+          type: string
+        position_size:
+          type: string
+        margin_lost:
+          type: string
+        timestamp:
+          type: integer
+      required:
+        - id
+        - tx_hash
+        - block_number
+        - market_address
+        - trader
+        - liquidator
+        - position_size
+        - margin_lost
+        - timestamp
+    LiquidationsResponse:
+      type: object
+      properties:
+        liquidations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              tx_hash:
+                type: string
+              block_number:
+                type: integer
+              market_address:
+                type: string
+              trader:
+                type: string
+              liquidator:
+                type: string
+              position_size:
+                type: string
+              margin_lost:
+                type: string
+              timestamp:
+                type: integer
+            required:
+              - id
+              - tx_hash
+              - block_number
+              - market_address
+              - trader
+              - liquidator
+              - position_size
+              - margin_lost
+              - timestamp
+      required:
+        - liquidations
+    MarketSearchResult:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        logo_url:
+          type: string
+        price:
+          type: string
+        price_change_24h:
+          type: number
+        volume_24h:
+          type: string
+        created_at:
+          type: integer
+      required:
+        - address
+        - name
+        - symbol
+        - created_at
+    SearchResponse:
+      type: object
+      properties:
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              name:
+                type: string
+              symbol:
+                type: string
+              logo_url:
+                type: string
+              price:
+                type: string
+              price_change_24h:
+                type: number
+              volume_24h:
+                type: string
+              created_at:
+                type: integer
+            required:
+              - address
+              - name
+              - symbol
+              - created_at
+        total:
+          type: integer
+      required:
+        - markets
+        - total
+    HotMarket:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        logo_url:
+          type: string
+        price:
+          type: string
+        price_change_24h:
+          type: number
+        volume_24h:
+          type: string
+        trades_24h:
+          type: integer
+        rank:
+          type: integer
+      required:
+        - address
+        - name
+        - symbol
+        - price
+        - price_change_24h
+        - volume_24h
+        - trades_24h
+        - rank
+    NewMarket:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        creator:
+          type: string
+        logo_url:
+          type: string
+        description:
+          type: string
+        price:
+          type: string
+        created_at:
+          type: integer
+        block_number:
+          type: integer
+      required:
+        - address
+        - name
+        - symbol
+        - creator
+        - created_at
+        - block_number
+    TopGainer:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        logo_url:
+          type: string
+        price:
+          type: string
+        price_change_24h:
+          type: number
+        volume_24h:
+          type: string
+      required:
+        - address
+        - name
+        - symbol
+        - price
+        - price_change_24h
+        - volume_24h
+    Position:
+      type: object
+      properties:
+        id:
+          type: string
+        market_address:
+          type: string
+        user:
+          type: string
+        size:
+          type: string
+        collateral:
+          type: string
+        entry_price:
+          type: string
+        is_long:
+          type: boolean
+        leverage:
+          type: string
+        unrealized_pnl:
+          type: string
+        liquidation_price:
+          type: string
+        opened_at:
+          type: integer
+        updated_at:
+          type: integer
+      required:
+        - id
+        - market_address
+        - user
+        - size
+        - collateral
+        - entry_price
+        - is_long
+        - leverage
+        - unrealized_pnl
+        - liquidation_price
+        - opened_at
+        - updated_at
+    PositionsResponse:
+      type: object
+      properties:
+        positions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              market_address:
+                type: string
+              user:
+                type: string
+              size:
+                type: string
+              collateral:
+                type: string
+              entry_price:
+                type: string
+              is_long:
+                type: boolean
+              leverage:
+                type: string
+              unrealized_pnl:
+                type: string
+              liquidation_price:
+                type: string
+              opened_at:
+                type: integer
+              updated_at:
+                type: integer
+            required:
+              - id
+              - market_address
+              - user
+              - size
+              - collateral
+              - entry_price
+              - is_long
+              - leverage
+              - unrealized_pnl
+              - liquidation_price
+              - opened_at
+              - updated_at
+      required:
+        - positions
+    UserBalance:
+      type: object
+      properties:
+        market_address:
+          type: string
+        deposited:
+          type: string
+        available:
+          type: string
+        locked:
+          type: string
+      required:
+        - market_address
+        - deposited
+        - available
+        - locked
+    BalancesResponse:
+      type: object
+      properties:
+        balances:
+          type: array
+          items:
+            type: object
+            properties:
+              market_address:
+                type: string
+              deposited:
+                type: string
+              available:
+                type: string
+              locked:
+                type: string
+            required:
+              - market_address
+              - deposited
+              - available
+              - locked
+      required:
+        - balances
+    CreatorMarketsResponse:
+      type: object
+      properties:
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              name:
+                type: string
+              symbol:
+                type: string
+              creator:
+                type: string
+              collateral_token:
+                type: string
+              base_reserve:
+                type: string
+              quote_reserve:
+                type: string
+              created_at:
+                type: integer
+              block_number:
+                type: integer
+              tx_hash:
+                type: string
+              is_paused:
+                type: boolean
+            required:
+              - address
+              - name
+              - symbol
+              - creator
+              - collateral_token
+              - base_reserve
+              - quote_reserve
+              - created_at
+              - block_number
+              - tx_hash
+              - is_paused
+      required:
+        - markets
+    MetadataSubmitResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        metadata:
+          type: object
+          properties:
+            market_address:
+              type: string
+            description:
+              type: string
+            logo_url:
+              type: string
+            website:
+              type: string
+            twitter:
+              type: string
+            telegram:
+              type: string
+            discord:
+              type: string
+            created_at:
+              type: integer
+            updated_at:
+              type: integer
+          required:
+            - market_address
+            - created_at
+            - updated_at
+      required:
+        - success
+        - metadata
+    UdfConfig:
+      type: object
+      properties:
+        supported_resolutions:
+          type: array
+          items:
+            type: string
+        supports_group_request:
+          type: boolean
+        supports_marks:
+          type: boolean
+        supports_search:
+          type: boolean
+        supports_timescale_marks:
+          type: boolean
+        supports_time:
+          type: boolean
+        exchanges:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              name:
+                type: string
+              desc:
+                type: string
+            required:
+              - value
+              - name
+              - desc
+        symbols_types:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+            required:
+              - name
+              - value
+      required:
+        - supported_resolutions
+        - supports_group_request
+        - supports_marks
+        - supports_search
+        - supports_timescale_marks
+        - supports_time
+        - exchanges
+        - symbols_types
+    UdfExchange:
+      type: object
+      properties:
+        value:
+          type: string
+        name:
+          type: string
+        desc:
+          type: string
+      required:
+        - value
+        - name
+        - desc
+    UdfSymbolType:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      required:
+        - name
+        - value
+    UdfSymbolInfo:
+      type: object
+      properties:
+        symbol:
+          type: string
+        ticker:
+          type: string
+        name:
+          type: string
+        full_name:
+          type: string
+        description:
+          type: string
+        exchange:
+          type: string
+        listed_exchange:
+          type: string
+        type:
+          type: string
+        currency_code:
+          type: string
+        session:
+          type: string
+        timezone:
+          type: string
+        minmovement:
+          type: integer
+        minmov:
+          type: integer
+        minmovement2:
+          type: integer
+        minmov2:
+          type: integer
+        pricescale:
+          type: integer
+        supported_resolutions:
+          type: array
+          items:
+            type: string
+        has_intraday:
+          type: boolean
+        has_daily:
+          type: boolean
+        has_weekly_and_monthly:
+          type: boolean
+        data_status:
+          type: string
+      required:
+        - symbol
+        - ticker
+        - name
+        - full_name
+        - description
+        - exchange
+        - listed_exchange
+        - type
+        - currency_code
+        - session
+        - timezone
+        - minmovement
+        - minmov
+        - minmovement2
+        - minmov2
+        - pricescale
+        - supported_resolutions
+        - has_intraday
+        - has_daily
+        - has_weekly_and_monthly
+        - data_status
+    UdfSearchResult:
+      type: object
+      properties:
+        symbol:
+          type: string
+        full_name:
+          type: string
+        description:
+          type: string
+        exchange:
+          type: string
+        type:
+          type: string
+        ticker:
+          type: string
+      required:
+        - symbol
+        - full_name
+        - description
+        - exchange
+        - type
+        - ticker
+    UdfHistoryResponse:
+      type: object
+      properties:
+        s:
+          type: string
+          enum:
+            - ok
+            - no_data
+            - error
+        t:
+          type: array
+          items:
+            type: integer
+        o:
+          type: array
+          items:
+            type: number
+        h:
+          type: array
+          items:
+            type: number
+        l:
+          type: array
+          items:
+            type: number
+        c:
+          type: array
+          items:
+            type: number
+        v:
+          type: array
+          items:
+            type: number
+        nextTime:
+          type: integer
+        errmsg:
+          type: string
+      required:
+        - s
+        - t
+        - o
+        - h
+        - l
+        - c
+        - v
+    WsPriceResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - price
+        market:
+          type: string
+        price:
+          type: string
+        price_usd:
+          type: number
+      required:
+        - type
+        - market
+        - price
+        - price_usd
+    WsCandleResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - candle
+        market:
+          type: string
+        interval:
+          type: string
+        bar:
+          type: object
+          properties:
+            time:
+              type: integer
+            open:
+              type: number
+            high:
+              type: number
+            low:
+              type: number
+            close:
+              type: number
+            volume:
+              type: number
+          required:
+            - time
+            - open
+            - high
+            - low
+            - close
+            - volume
+      required:
+        - type
+        - market
+        - interval
+        - bar
+    WsStatsResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - stats
+        market:
+          type: string
+        stats:
+          type: object
+          properties:
+            price:
+              type: string
+            price_change_24h:
+              type: number
+            volume_24h:
+              type: string
+            high_24h:
+              type: string
+            low_24h:
+              type: string
+            trades_24h:
+              type: integer
+            open_interest:
+              type: string
+            market_cap:
+              type: string
+            updated_at:
+              type: integer
+          required:
+            - price
+            - price_change_24h
+            - volume_24h
+            - high_24h
+            - low_24h
+            - trades_24h
+            - open_interest
+            - updated_at
+      required:
+        - type
+        - market
+        - stats
+    WsNewMarketResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - new_market
+        market:
+          type: object
+          properties:
+            address:
+              type: string
+            name:
+              type: string
+            symbol:
+              type: string
+            creator:
+              type: string
+            created_at:
+              type: integer
+          required:
+            - address
+            - name
+            - symbol
+            - creator
+            - created_at
+      required:
+        - type
+        - market
+    WsHotMarketsResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - hot_markets
+        markets:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              symbol:
+                type: string
+              price:
+                type: string
+              price_change_24h:
+                type: number
+              volume_24h:
+                type: string
+              rank:
+                type: integer
+            required:
+              - address
+              - symbol
+              - price
+              - price_change_24h
+              - volume_24h
+              - rank
+      required:
+        - type
+        - markets
+    WsTradeResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - trade
+        market:
+          type: string
+        trade:
+          type: object
+          properties:
+            id:
+              type: string
+            tx_hash:
+              type: string
+            block_number:
+              type: integer
+            market_address:
+              type: string
+            trader:
+              type: string
+            is_long:
+              type: boolean
+            is_open:
+              type: boolean
+            size:
+              type: string
+            price:
+              type: string
+            collateral:
+              type: string
+            fee:
+              type: string
+            timestamp:
+              type: integer
+          required:
+            - id
+            - tx_hash
+            - block_number
+            - market_address
+            - trader
+            - is_long
+            - is_open
+            - size
+            - price
+            - collateral
+            - fee
+            - timestamp
+      required:
+        - type
+        - market
+        - trade
+    WsErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - error
+        message:
+          type: string
+      required:
+        - type
+        - message
+x-ext-urls: {}

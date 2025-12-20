@@ -1,0 +1,1583 @@
+openapi: 3.1.0
+info:
+  title: Options Oracle API
+  description: "REST endpoints for prices, assets, options, chains, positions,
+    orders, trades, collateral, and stats used by OptionsApiClient. Base URL:
+    https://options.api.market.paxportwallet.com"
+  version: 1.0.0
+servers:
+  - url: https://options.api.market.paxportwallet.com
+    description: Production
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: number
+                required:
+                  - status
+                  - timestamp
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getHealth();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/status:
+    get:
+      summary: Indexer sync status
+      responses:
+        "200":
+          description: Indexer status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  indexerBlock:
+                    type: number
+                  chainBlock:
+                    type: number
+                  lag:
+                    type: number
+                  synced:
+                    type: boolean
+                required:
+                  - indexerBlock
+                  - chainBlock
+                  - lag
+                  - synced
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiStatus();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/prices:
+    get:
+      summary: All latest prices
+      responses:
+        "200":
+          description: Price list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset_id:
+                      type: string
+                    price:
+                      type: string
+                    timestamp:
+                      type: number
+                    updater:
+                      type: string
+                    block_number:
+                      type: number
+                    tx_hash:
+                      type: string
+                    symbol:
+                      type: string
+                  required:
+                    - asset_id
+                    - price
+                    - timestamp
+                    - updater
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiPrices();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/prices/{assetId}:
+    get:
+      summary: Latest price for asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Price
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset_id:
+                    type: string
+                  price:
+                    type: string
+                  timestamp:
+                    type: number
+                  updater:
+                    type: string
+                  block_number:
+                    type: number
+                  tx_hash:
+                    type: string
+                  symbol:
+                    type: string
+                required:
+                  - asset_id
+                  - price
+                  - timestamp
+                  - updater
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiPricesAssetId({
+                assetId: "<id>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/prices/{assetId}/history:
+    get:
+      summary: Price history for asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Price history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset_id:
+                      type: string
+                    price:
+                      type: string
+                    timestamp:
+                      type: number
+                    block_number:
+                      type: number
+                  required:
+                    - asset_id
+                    - price
+                    - timestamp
+                    - block_number
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiPricesAssetIdHistory({
+                assetId: "<id>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/assets:
+    get:
+      summary: Registered assets
+      responses:
+        "200":
+          description: Assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset_id:
+                      type: string
+                    symbol:
+                      type: string
+                    asset_type:
+                      type: integer
+                    is_active:
+                      type: boolean
+                    block_number:
+                      type: number
+                    created_at:
+                      type: string
+                  required:
+                    - asset_id
+                    - symbol
+                    - asset_type
+                    - is_active
+                    - block_number
+                    - created_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiAssets();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/tokens:
+    get:
+      summary: Token listings
+      responses:
+        "200":
+          description: Token listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset_id:
+                      type: string
+                    symbol:
+                      type: string
+                    asset_class:
+                      type: integer
+                    token_address:
+                      type: string
+                    block_number:
+                      type: number
+                  required:
+                    - asset_id
+                    - symbol
+                    - asset_class
+                    - token_address
+                    - block_number
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiTokens();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/options:
+    get:
+      summary: Options list
+      parameters:
+        - name: underlying
+          in: query
+          schema:
+            type: string
+        - name: expired
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Options
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    option_id:
+                      type: string
+                    underlying_asset:
+                      type: string
+                    option_type:
+                      type: integer
+                      description: 0=CALL,1=PUT
+                    strike_price:
+                      type: string
+                    expiration:
+                      type: number
+                    block_number:
+                      type: number
+                    created_at:
+                      type: string
+                  required:
+                    - option_id
+                    - underlying_asset
+                    - option_type
+                    - strike_price
+                    - expiration
+                    - block_number
+                    - created_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiOptions({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/options/{optionId}:
+    get:
+      summary: Option by ID
+      parameters:
+        - name: optionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Option
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  option_id:
+                    type: string
+                  underlying_asset:
+                    type: string
+                  option_type:
+                    type: integer
+                    description: 0=CALL,1=PUT
+                  strike_price:
+                    type: string
+                  expiration:
+                    type: number
+                  block_number:
+                    type: number
+                  created_at:
+                    type: string
+                required:
+                  - option_id
+                  - underlying_asset
+                  - option_type
+                  - strike_price
+                  - expiration
+                  - block_number
+                  - created_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiOptionsOptionId({
+                optionId: "<id>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/chain:
+    get:
+      summary: Options chain for assets
+      parameters:
+        - name: underlying
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Options chain
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    assetId:
+                      type: string
+                    symbol:
+                      type: string
+                    currentPrice:
+                      type: string
+                    expirations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          expiration:
+                            type: number
+                          expirationDate:
+                            type: string
+                          daysToExpiry:
+                            type: number
+                          strikes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                strike:
+                                  type: string
+                                call:
+                                  type:
+                                    - object
+                                    - "null"
+                                  properties:
+                                    optionId:
+                                      type: string
+                                    strikePrice:
+                                      type: string
+                                    expiration:
+                                      type: number
+                                  required:
+                                    - optionId
+                                    - strikePrice
+                                    - expiration
+                                put:
+                                  type:
+                                    - object
+                                    - "null"
+                                  properties:
+                                    optionId:
+                                      type: string
+                                    strikePrice:
+                                      type: string
+                                    expiration:
+                                      type: number
+                                  required:
+                                    - optionId
+                                    - strikePrice
+                                    - expiration
+                              required:
+                                - strike
+                        required:
+                          - expiration
+                          - expirationDate
+                          - daysToExpiry
+                          - strikes
+                  required:
+                    - assetId
+                    - symbol
+                    - currentPrice
+                    - expirations
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiChain({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/chain/{assetId}:
+    get:
+      summary: Options chain for asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Asset chain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assetId:
+                    type: string
+                  symbol:
+                    type: string
+                  currentPrice:
+                    type: string
+                  chain:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        expiration:
+                          type: number
+                        expirationDate:
+                          type: string
+                        daysToExpiry:
+                          type: number
+                        calls:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              optionId:
+                                type: string
+                              strike:
+                                type: string
+                            required:
+                              - optionId
+                              - strike
+                        puts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              optionId:
+                                type: string
+                              strike:
+                                type: string
+                            required:
+                              - optionId
+                              - strike
+                      required:
+                        - expiration
+                        - expirationDate
+                        - daysToExpiry
+                        - calls
+                        - puts
+                required:
+                  - assetId
+                  - symbol
+                  - currentPrice
+                  - chain
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiChainAssetId({
+                assetId: "<id>",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/positions:
+    get:
+      summary: Positions
+      parameters:
+        - name: holder
+          in: query
+          schema:
+            type: string
+        - name: open
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Positions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    position_id:
+                      type: string
+                    option_id:
+                      type: string
+                    holder:
+                      type: string
+                    quantity:
+                      type: string
+                    premium:
+                      type: string
+                    is_open:
+                      type: boolean
+                    block_number:
+                      type: number
+                    created_at:
+                      type: string
+                    underlying_asset:
+                      type: string
+                    option_type:
+                      type: integer
+                    strike_price:
+                      type: string
+                    expiration:
+                      type: number
+                  required:
+                    - position_id
+                    - option_id
+                    - holder
+                    - quantity
+                    - premium
+                    - is_open
+                    - block_number
+                    - created_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiPositions({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/orders:
+    get:
+      summary: Orders
+      parameters:
+        - name: trader
+          in: query
+          schema:
+            type: string
+        - name: optionId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    order_id:
+                      type: string
+                    option_id:
+                      type: string
+                    trader:
+                      type: string
+                    side:
+                      type: integer
+                      description: 0=BUY,1=SELL
+                    price:
+                      type: string
+                    quantity:
+                      type: string
+                    status:
+                      type: integer
+                    block_number:
+                      type: number
+                    created_at:
+                      type: string
+                  required:
+                    - order_id
+                    - option_id
+                    - trader
+                    - side
+                    - price
+                    - quantity
+                    - status
+                    - block_number
+                    - created_at
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiOrders({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/trades:
+    get:
+      summary: Trades
+      parameters:
+        - name: optionId
+          in: query
+          schema:
+            type: string
+        - name: buyer
+          in: query
+          schema:
+            type: string
+        - name: seller
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    trade_id:
+                      type: string
+                    option_id:
+                      type: string
+                    buyer:
+                      type: string
+                    seller:
+                      type: string
+                    price:
+                      type: string
+                    quantity:
+                      type: string
+                    block_number:
+                      type: number
+                    tx_hash:
+                      type: string
+                    timestamp:
+                      type: number
+                  required:
+                    - trade_id
+                    - option_id
+                    - buyer
+                    - seller
+                    - price
+                    - quantity
+                    - block_number
+                    - tx_hash
+                    - timestamp
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiTrades({});
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/collateral/{account}:
+    get:
+      summary: Collateral events for account
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Collateral events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    event_type:
+                      type: string
+                    account:
+                      type: string
+                    token:
+                      type: string
+                    amount:
+                      type: string
+                    block_number:
+                      type: number
+                    tx_hash:
+                      type: string
+                    timestamp:
+                      type: number
+                  required:
+                    - event_type
+                    - account
+                    - token
+                    - amount
+                    - block_number
+                    - tx_hash
+                    - timestamp
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiCollateralAccount({
+                account: "70202876",
+              });
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/stats:
+    get:
+      summary: Trading statistics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalOptions:
+                    type: number
+                  activeOptions:
+                    type: number
+                  totalTrades:
+                    type: number
+                  totalVolume:
+                    type: number
+                  openPositions:
+                    type: number
+                  totalAssets:
+                    type: number
+                required:
+                  - totalOptions
+                  - activeOptions
+                  - totalTrades
+                  - totalVolume
+                  - openPositions
+                  - totalAssets
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiStats();
+
+              console.log(result);
+            }
+
+
+            run();
+  /api/stats/volume:
+    get:
+      summary: 24h volume by asset
+      responses:
+        "200":
+          description: Volume stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    underlying_asset:
+                      type: string
+                    trade_count:
+                      type: number
+                    volume:
+                      type: number
+                    notional:
+                      type: number
+                  required:
+                    - underlying_asset
+                    - trade_count
+                    - volume
+                    - notional
+      x-codeSamples:
+        - label: typescript
+          lang: typescript
+          source: >-
+            import { OptionsOracleApi } from
+            "@paxeer-network/options-oracle-api-typescript";
+
+
+            const optionsOracleApi = new OptionsOracleApi();
+
+
+            async function run() {
+              const result = await optionsOracleApi.getApiStatsVolume();
+
+              console.log(result);
+            }
+
+
+            run();
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: number
+      required:
+        - status
+        - timestamp
+    IndexerStatus:
+      type: object
+      properties:
+        indexerBlock:
+          type: number
+        chainBlock:
+          type: number
+        lag:
+          type: number
+        synced:
+          type: boolean
+      required:
+        - indexerBlock
+        - chainBlock
+        - lag
+        - synced
+    PriceData:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        price:
+          type: string
+        timestamp:
+          type: number
+        updater:
+          type: string
+        block_number:
+          type: number
+        tx_hash:
+          type: string
+        symbol:
+          type: string
+      required:
+        - asset_id
+        - price
+        - timestamp
+        - updater
+    PriceHistory:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        price:
+          type: string
+        timestamp:
+          type: number
+        block_number:
+          type: number
+      required:
+        - asset_id
+        - price
+        - timestamp
+        - block_number
+    Asset:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        symbol:
+          type: string
+        asset_type:
+          type: integer
+        is_active:
+          type: boolean
+        block_number:
+          type: number
+        created_at:
+          type: string
+      required:
+        - asset_id
+        - symbol
+        - asset_type
+        - is_active
+        - block_number
+        - created_at
+    TokenListing:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        symbol:
+          type: string
+        asset_class:
+          type: integer
+        token_address:
+          type: string
+        block_number:
+          type: number
+      required:
+        - asset_id
+        - symbol
+        - asset_class
+        - token_address
+        - block_number
+    Option:
+      type: object
+      properties:
+        option_id:
+          type: string
+        underlying_asset:
+          type: string
+        option_type:
+          type: integer
+          description: 0=CALL,1=PUT
+        strike_price:
+          type: string
+        expiration:
+          type: number
+        block_number:
+          type: number
+        created_at:
+          type: string
+      required:
+        - option_id
+        - underlying_asset
+        - option_type
+        - strike_price
+        - expiration
+        - block_number
+        - created_at
+    Position:
+      type: object
+      properties:
+        position_id:
+          type: string
+        option_id:
+          type: string
+        holder:
+          type: string
+        quantity:
+          type: string
+        premium:
+          type: string
+        is_open:
+          type: boolean
+        block_number:
+          type: number
+        created_at:
+          type: string
+        underlying_asset:
+          type: string
+        option_type:
+          type: integer
+        strike_price:
+          type: string
+        expiration:
+          type: number
+      required:
+        - position_id
+        - option_id
+        - holder
+        - quantity
+        - premium
+        - is_open
+        - block_number
+        - created_at
+    Order:
+      type: object
+      properties:
+        order_id:
+          type: string
+        option_id:
+          type: string
+        trader:
+          type: string
+        side:
+          type: integer
+          description: 0=BUY,1=SELL
+        price:
+          type: string
+        quantity:
+          type: string
+        status:
+          type: integer
+        block_number:
+          type: number
+        created_at:
+          type: string
+      required:
+        - order_id
+        - option_id
+        - trader
+        - side
+        - price
+        - quantity
+        - status
+        - block_number
+        - created_at
+    Trade:
+      type: object
+      properties:
+        trade_id:
+          type: string
+        option_id:
+          type: string
+        buyer:
+          type: string
+        seller:
+          type: string
+        price:
+          type: string
+        quantity:
+          type: string
+        block_number:
+          type: number
+        tx_hash:
+          type: string
+        timestamp:
+          type: number
+      required:
+        - trade_id
+        - option_id
+        - buyer
+        - seller
+        - price
+        - quantity
+        - block_number
+        - tx_hash
+        - timestamp
+    CollateralEvent:
+      type: object
+      properties:
+        event_type:
+          type: string
+        account:
+          type: string
+        token:
+          type: string
+        amount:
+          type: string
+        block_number:
+          type: number
+        tx_hash:
+          type: string
+        timestamp:
+          type: number
+      required:
+        - event_type
+        - account
+        - token
+        - amount
+        - block_number
+        - tx_hash
+        - timestamp
+    StrikeData:
+      type: object
+      properties:
+        strike:
+          type: string
+        call:
+          type:
+            - object
+            - "null"
+          properties:
+            optionId:
+              type: string
+            strikePrice:
+              type: string
+            expiration:
+              type: number
+          required:
+            - optionId
+            - strikePrice
+            - expiration
+        put:
+          type:
+            - object
+            - "null"
+          properties:
+            optionId:
+              type: string
+            strikePrice:
+              type: string
+            expiration:
+              type: number
+          required:
+            - optionId
+            - strikePrice
+            - expiration
+      required:
+        - strike
+    ExpirationData:
+      type: object
+      properties:
+        expiration:
+          type: number
+        expirationDate:
+          type: string
+        daysToExpiry:
+          type: number
+        strikes:
+          type: array
+          items:
+            type: object
+            properties:
+              strike:
+                type: string
+              call:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  optionId:
+                    type: string
+                  strikePrice:
+                    type: string
+                  expiration:
+                    type: number
+                required:
+                  - optionId
+                  - strikePrice
+                  - expiration
+              put:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  optionId:
+                    type: string
+                  strikePrice:
+                    type: string
+                  expiration:
+                    type: number
+                required:
+                  - optionId
+                  - strikePrice
+                  - expiration
+            required:
+              - strike
+      required:
+        - expiration
+        - expirationDate
+        - daysToExpiry
+        - strikes
+    OptionsChain:
+      type: object
+      properties:
+        assetId:
+          type: string
+        symbol:
+          type: string
+        currentPrice:
+          type: string
+        expirations:
+          type: array
+          items:
+            type: object
+            properties:
+              expiration:
+                type: number
+              expirationDate:
+                type: string
+              daysToExpiry:
+                type: number
+              strikes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    strike:
+                      type: string
+                    call:
+                      type:
+                        - object
+                        - "null"
+                      properties:
+                        optionId:
+                          type: string
+                        strikePrice:
+                          type: string
+                        expiration:
+                          type: number
+                      required:
+                        - optionId
+                        - strikePrice
+                        - expiration
+                    put:
+                      type:
+                        - object
+                        - "null"
+                      properties:
+                        optionId:
+                          type: string
+                        strikePrice:
+                          type: string
+                        expiration:
+                          type: number
+                      required:
+                        - optionId
+                        - strikePrice
+                        - expiration
+                  required:
+                    - strike
+            required:
+              - expiration
+              - expirationDate
+              - daysToExpiry
+              - strikes
+      required:
+        - assetId
+        - symbol
+        - currentPrice
+        - expirations
+    AssetChain:
+      type: object
+      properties:
+        assetId:
+          type: string
+        symbol:
+          type: string
+        currentPrice:
+          type: string
+        chain:
+          type: array
+          items:
+            type: object
+            properties:
+              expiration:
+                type: number
+              expirationDate:
+                type: string
+              daysToExpiry:
+                type: number
+              calls:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    optionId:
+                      type: string
+                    strike:
+                      type: string
+                  required:
+                    - optionId
+                    - strike
+              puts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    optionId:
+                      type: string
+                    strike:
+                      type: string
+                  required:
+                    - optionId
+                    - strike
+            required:
+              - expiration
+              - expirationDate
+              - daysToExpiry
+              - calls
+              - puts
+      required:
+        - assetId
+        - symbol
+        - currentPrice
+        - chain
+    TradingStats:
+      type: object
+      properties:
+        totalOptions:
+          type: number
+        activeOptions:
+          type: number
+        totalTrades:
+          type: number
+        totalVolume:
+          type: number
+        openPositions:
+          type: number
+        totalAssets:
+          type: number
+      required:
+        - totalOptions
+        - activeOptions
+        - totalTrades
+        - totalVolume
+        - openPositions
+        - totalAssets
+    VolumeStats:
+      type: object
+      properties:
+        underlying_asset:
+          type: string
+        trade_count:
+          type: number
+        volume:
+          type: number
+        notional:
+          type: number
+      required:
+        - underlying_asset
+        - trade_count
+        - volume
+        - notional
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+x-ext-urls: {}

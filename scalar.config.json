@@ -45,16 +45,24 @@
   ],
   "references": [
     {
-      "name": "API Reference",
-      "path": "./docs/api-reference/openapi.yaml"
+      "name": "Sidiora Exchange API Reference",
+      "path": "./docs/sidiora-api/openapi.yaml"
     },
     {
-      "name": "Sidiora API Reference",
-      "path": "./docs/sidiora-api/sidiora-client-api.yaml"
+      "name": "PaxLaunch API Reference",
+      "path": "./docs/market-launchpad-api/openapi.yaml"
     },
     {
-      "name": "Stock Engine API Reference",
+      "name": "PaxStocks Engine API Reference",
       "path": "./docs/stocks-engine-api/openapi.yaml"
+    },
+    {
+      "name": "PaxForex Engine API Reference",
+      "path": "./docs/forex-engine-api/openapi.yaml"
+    },
+    {
+      "name": "PaxOptions Engine API Reference",
+      "path": "./docs/options-engine-api/openapi.yaml"
     }
   ]
 }
