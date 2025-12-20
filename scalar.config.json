@@ -9,40 +9,6 @@
   },
   "guides": [
     {
-      "name": "Quick Start",
-      "sidebar": [
-        {
-          "name": "Getting Started with Scalar",
-          "type": "folder",
-          "icon": "rocket",
-          "children": [
-            { "path": "docs/guides/quick-start/introduction.md", "type": "page", "name": "Overview" },
-            { "path": "docs/guides/quick-start/details/quickstart.md", "type": "page", "name": "Quickstart" },
-            { "path": "docs/guides/quick-start/details/development.md", "type": "page", "name": "Development" }
-          ]
-        },
-        {
-          "name": "Customizing Your Setup",
-          "type": "folder",
-          "icon": "gear",
-          "children": [
-            { "path": "docs/guides/quick-start/details/project-settings.md", "type": "page", "name": "Project Settings" },
-            { "path": "docs/guides/quick-start/details/api-client.md", "type": "page", "name": "API Client" }
-          ]
-        },
-        {
-          "name": "Appendix",
-          "type": "folder",
-          "icon": "notebook",
-          "defaultOpen": false,
-          "children": [
-            { "path": "docs/guides/quick-start/details/scalar-cli.md", "type": "page", "name": "Scalar CLI" },
-            { "path": "docs/guides/quick-start/details/syntax.md", "type": "page", "name": "Syntax" }
-          ]
-        }
-      ]
-    },
-    {
       "name": "Protocol Architecture",
       "sidebar": [
         {
@@ -66,9 +32,68 @@
           ]
         }
       ]
+    },
+    {
+      "name": "API Usage",
+      "sidebar": [
+        {
+          "name": "REST / JSON-RPC",
+          "type": "page",
+          "path": "docs/guides/api-usage/rest.md",
+          "icon": "globe"
+        },
+        {
+          "name": "gRPC",
+          "type": "page",
+          "path": "docs/guides/api-usage/grpc.md",
+          "icon": "layers"
+        },
+        {
+          "name": "CLI",
+          "type": "page",
+          "path": "docs/guides/api-usage/cli.md",
+          "icon": "terminal"
+        }
+      ]
     }
   ],
   "references": [
+    {
+      "name": "Paxeer Block API",
+      "path": "./docs/paxeer/block.yaml"
+    },
+    {
+      "name": "Paxeer State API",
+      "path": "./docs/paxeer/state.yaml"
+    },
+    {
+      "name": "Paxeer Transaction API",
+      "path": "./docs/paxeer/transaction.yaml"
+    },
+    {
+      "name": "Paxeer Execute API",
+      "path": "./docs/paxeer/execute.yaml"
+    },
+    {
+      "name": "Paxeer Submit API",
+      "path": "./docs/paxeer/submit.yaml"
+    },
+    {
+      "name": "Paxeer Filter API",
+      "path": "./docs/paxeer/filter.yaml"
+    },
+    {
+      "name": "Paxeer Fee Market API",
+      "path": "./docs/paxeer/fee_market.yaml"
+    },
+    {
+      "name": "Paxeer Sign API",
+      "path": "./docs/paxeer/sign.yaml"
+    },
+    {
+      "name": "Paxeer Client API",
+      "path": "./docs/paxeer/client.yaml"
+    },
     {
       "name": "Sidiora Exchange API Reference",
       "path": "./docs/sidiora-api/openapi.yaml"

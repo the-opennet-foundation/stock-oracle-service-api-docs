@@ -1,0 +1,28 @@
+- name: engine_exchangeTransitionConfigurationV1
+  summary: Exchanges transition configuration
+  externalDocs:
+    description: Method specification
+    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/paris.md#engine_exchangetransitionconfigurationv1
+  params:
+    - name: Consensus client configuration
+      required: true
+      schema:
+        $ref: '#/components/schemas/TransitionConfigurationV1'
+  result:
+    name: Execution client configuration
+    schema:
+      $ref: '#/components/schemas/TransitionConfigurationV1'
+  examples:
+    - name: engine_exchangeTransitionConfigurationV1 example
+      params:
+        - name: Consensus client configuration
+          value:
+            terminalTotalDifficulty: 0
+            terminalBlockHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
+            terminalBlockNumber: '0x1'
+      result:
+        name: Execution client configuration
+        value:
+          terminalTotalDifficulty: 0
+          terminalBlockHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
+          terminalBlockNumber: '0x1'
